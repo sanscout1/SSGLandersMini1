@@ -1,4 +1,7 @@
 package API;
 
-public class IStockService {
+public interface IStockService {
+
+    void printStock();
+
 }
