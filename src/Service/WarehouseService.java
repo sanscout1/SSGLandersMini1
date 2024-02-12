@@ -18,8 +18,9 @@ public class WarehouseService implements IWarehouseService {
         }
         return instance;
     }
-    WarehouseDao warehouseDao = WarehouseDao.getInstance();
-    WarehouseVO warehouse;
+
+    private WarehouseDao warehouseDao = WarehouseDao.getInstance();
+    private WarehouseVO warehouse;
     Scanner sc = new Scanner(System.in);
     // UID userservice에서 가져오는거 구현 예정
     int UID = 1;
@@ -86,29 +87,13 @@ public class WarehouseService implements IWarehouseService {
         }
     }
 
-
-            /*
-WID int(11) AI PK
-UID int(11)
-wtype tinyint(2)
-wname varchar(15)
-address_city varchar(10)
-totalcapacity int(11)
-usingcapacity int(11)
-charge int(11)
-cost int(11)
- */
-
-    /*
-    Read
-     */
     @Override
     public void getWarehouse() {
         List<WarehouseVO> warehouseVOList = warehouseDao.warehouseRead();
         System.out.println("1. 전체 조회 | 2. 소재지 별 조회 | 3. 창고명 별 조회 | 4. 종류 별 조회");
         int select = Integer.parseInt(sc.next());
         switch (select) {
-            case 1 -> getWarehouseAll(warehouseVOList, null,0);
+            case 1 -> getWarehouseAll(warehouseVOList, null, 0);
             case 2 -> getWarehouseCity(warehouseVOList);
             case 3 -> getWarehouseName(warehouseVOList);
             case 4 -> getWarehouseType(warehouseVOList);
@@ -132,20 +117,20 @@ cost int(11)
             }
             if (identifier != null) {
 
-                if(type == 1 && identifier.equals(warehouseVO.getAddressCity()) ){
-                    printWarehouse(warehouseVO,wtype);
-                } else if ( type == 2 && warehouseVO.getWarehouseName().contains((CharSequence) identifier)) {
-                    printWarehouse(warehouseVO,wtype);
-                }
-                else if(type == 3 && identifier.equals(warehouseVO.getWarehouseType())){
-                    printWarehouse(warehouseVO,wtype);
+                if (type == 1 && identifier.equals(warehouseVO.getAddressCity())) {
+                    printWarehouse(warehouseVO, wtype);
+                } else if (type == 2 && warehouseVO.getWarehouseName().contains((CharSequence) identifier)) {
+                    printWarehouse(warehouseVO, wtype);
+                } else if (type == 3 && identifier.equals(warehouseVO.getWarehouseType())) {
+                    printWarehouse(warehouseVO, wtype);
                 }
             } else {
-                printWarehouse(warehouseVO,wtype);
+                printWarehouse(warehouseVO, wtype);
             }
         }
     }
-    private void printWarehouse(WarehouseVO warehouseVO, String wtype){
+
+    private void printWarehouse(WarehouseVO warehouseVO, String wtype) {
         System.out.printf("%-4d%-7s%-20s%-12s%-16d%-16d%-11d%-9d\n",
                 warehouseVO.getUserID(), wtype, warehouseVO.getWarehouseName(),
                 warehouseVO.getAddressCity(), warehouseVO.getTotalCapacity(), warehouseVO.getUsingCapacity(),
@@ -157,14 +142,14 @@ cost int(11)
         System.out.println("도시 입력");
         //예외 처리
         String city = sc.next();
-        getWarehouseAll(warehouseVOList, city,1);
+        getWarehouseAll(warehouseVOList, city, 1);
 
     }
 
     private void getWarehouseName(List<WarehouseVO> warehouseVOList) {
         System.out.println("창고 이름 입력");
         String name = sc.next();
-        getWarehouseAll(warehouseVOList, name,2);
+        getWarehouseAll(warehouseVOList, name, 2);
 
     }
 
@@ -172,7 +157,7 @@ cost int(11)
         System.out.println("창고 종류 입력");
         System.out.println("1. 기본 | 2. 냉장 | 3. 냉동");
         int wtype = Integer.parseInt(sc.next());
-        getWarehouseAll(warehouseVOList, wtype,3);
+        getWarehouseAll(warehouseVOList, wtype, 3);
     }
 
 
