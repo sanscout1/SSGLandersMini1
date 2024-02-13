@@ -27,7 +27,7 @@ public class WaybillService {
   }
 
   //운송장 등록
-  public void waybillAdd() {
+  public int waybillAdd() {
     System.out.println("==운송장 등록합니다==");
     System.out.println("==보내는사람 입력하세요==");
     String dep_name = sc.nextLine();
@@ -41,11 +41,11 @@ public class WaybillService {
     String arr_city = sc.nextLine();
     System.out.println("==받는도시번호 입력하세요==");
     int arr_city_num = Integer.parseInt(sc.nextLine());
-    System.out.println("==운송장번호 입력하세요==");
-    int way_num = Integer.parseInt(sc.nextLine());
+    int way_num = (int)(Math.random()*100)+1; // 운송장번호 자동생성
 
     WaybillVO waybillVO = new WaybillVO( dep_name, dep_city, dep_city_num,  arr_name, arr_city,arr_city_num,way_num);
-    waybillDao.waybillInsert(waybillVO); // insert할 객체 보냄
+    int wayNum = waybillDao.waybillInsert(waybillVO); // insert할 객체 보냄
+    return wayNum;
   }
 
   //운송장 수정
@@ -78,13 +78,13 @@ public class WaybillService {
   //운송장 한 객체 출력
   public void waybillPrint(WaybillVO waybillVO) {
     System.out.println("운송장번호: " + waybillVO.getId()
-            + " 보내는사람: " + waybillVO.getDep_name()
-            + " 보내는곳: " + waybillVO.getDep_city()
-            + " 보내는곳 번호: " + waybillVO.getDep_city_num()
-            + " 받는사람: " + waybillVO.getArr_name()
-            + " 받는곳: " + waybillVO.getArr_city()
-            + " 받는곳 번호: " + waybillVO.getArr_city_num()
-            + " 운송장 번호: " + waybillVO.getArr_city_num()
+                       + " 보내는사람: " + waybillVO.getDep_name()
+                       + " 보내는곳: " + waybillVO.getDep_city()
+                       + " 보내는곳 번호: " + waybillVO.getDep_city_num()
+                       + " 받는사람: " + waybillVO.getArr_name()
+                       + " 받는곳: " + waybillVO.getArr_city()
+                       + " 받는곳 번호: " + waybillVO.getArr_city_num()
+                       + " 운송장 번호: " + waybillVO.getArr_city_num()
     );
   }
 }

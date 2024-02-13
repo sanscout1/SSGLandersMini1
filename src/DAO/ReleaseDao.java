@@ -17,7 +17,7 @@ public class ReleaseDao {
       Class.forName("com.mysql.cj.jdbc.Driver");
 
       conn = DriverManager.getConnection(
-              "jdbc:mysql://localhost:3306/sshlandersretatil?serverTimezone=Asia/Seoul",
+              "jdbc:mysql://localhost:3306/ssglandersretail?serverTimezone=Asia/Seoul",
               "root",
               "1111"
       );
@@ -83,14 +83,53 @@ public class ReleaseDao {
     return releaseVOList;
   }
 
+  public void releaseDispatchWaybillUpdate(int waybillNum, int dispatchNum){
+
+    int max = 0;
+    try {
+      connectDB();
+      // 가장큰 Rel_id 가져오기
+      String sql = "select Rel_id from ssglandersretail.release order by Rel_id DESC LIMIT 1";
+      PreparedStatement pstmt = conn.prepareStatement(sql);
+      ResultSet rs = pstmt.executeQuery();
+
+      if(rs.next()){
+        max = rs.getInt("Rel_id");
+      }
+
+
+      // 운송장번호, 배차번호
+      sql = new StringBuilder().append("UPDATE ssglandersretail.release SET ")
+              .append("way_id=? ,")
+              .append("Did=? ")
+              .append("where Rel_ID = ?")
+              .toString();
+
+      pstmt = conn.prepareStatement(sql);
+      pstmt.setInt(1, waybillNum);
+      pstmt.setInt(2, dispatchNum);
+      pstmt.setInt(3, max);
+
+      int rows = pstmt.executeUpdate();
+      System.out.println("저장된 행 수: " + rows);
+
+      //PreparedStatement 닫기
+      pstmt.close();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } finally {
+      closeDB();
+    }
+  }
+
   // 요청 삽입, approval, state = 0 // dispatchid, waybillid = 000
   public void releaseRequestInsert(ReleaseVO release) {
 
     try {
       connectDB();
       String sql = "INSERT INTO ssglandersretail.release " +
-              "(rel_date,p_quantity,state,approval,Did,way_id,UID,WID,PID)" +
-              "values(?,?,?,?,?,?,?,?,?)";
+                   "(rel_date,p_quantity,state,approval,Did,way_id,UID,WID,PID)" +
+                   "values(?,?,?,?,?,?,?,?,?)";
 
       PreparedStatement pstmt = conn.prepareStatement(sql);
       pstmt.setTimestamp(1, new java.sql.Timestamp(release.getDate().getTime()));

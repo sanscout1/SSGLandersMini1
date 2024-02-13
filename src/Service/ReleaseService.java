@@ -14,7 +14,10 @@ public class ReleaseService {
 
   List<ReleaseVO> ReleaseRequest = new ArrayList<>();
   ReleaseDao releaseDao = new ReleaseDao();
+  WaybillService waybillService = new WaybillService();
+  DispatchService dispatchService = new DispatchService();
   Scanner sc = new Scanner(System.in);
+
 
   // 출고 요청하기 / 둘다가능
   public void releaseRequest() throws ParseException {
@@ -74,26 +77,37 @@ public class ReleaseService {
 
   // 승인하기 / 관리자 가능
   public void releaseApprove(){
+    int wayNum =0;
+    int dNum = 0;
     System.out.println("==수정하기==");
     System.out.println("==수정할 출고번호 입력하세요==");
     int searchNum = Integer.parseInt(sc.nextLine()); // 바꿀 출고번호
     System.out.println("==승인하시려면 1, 미승인바꾸시려면 0 입력하세요==");
     int approvalNum = Integer.parseInt(sc.nextLine());// 승인여부
+    if(approvalNum == 1){
+      wayNum = waybillService.waybillAdd(); // 운송장 추가
+      dNum = dispatchService.dispatchAdd(); // 대차 추가
+    }
+    // 출고번호로 승인해주기
     releaseDao.releaseApproveUpdate(searchNum, approvalNum);
+    // 운송장, 대차 수정
+    if(approvalNum == 1){
+      releaseDao.releaseDispatchWaybillUpdate(wayNum,dNum);
+    }
     System.out.println("==변경완료==");
   }
 
   // release 객체  한개 출력
   public void releasePrint(ReleaseVO release){
     System.out.println("출고아이디: "+release.getId()
-            +" 출고날짜: "+release.getDate()
-            +" 출고수량: "+release.getQuentity()
-            +" 출고상태: "+release.getState()
-            +" 승인여부: "+release.getApproval()
-            +" 배차아이디: "+release.getDispatchId()
-            +" 운송장아이디: "+release.getWaybillId()
-            +" 아이디: "+release.getId()
-            +" 창고아이디: "+release.getWarehouseId());
+                       +" 출고날짜: "+release.getDate()
+                       +" 출고수량: "+release.getQuentity()
+                       +" 출고상태: "+release.getState()
+                       +" 승인여부: "+release.getApproval()
+                       +" 배차아이디: "+release.getDispatchId()
+                       +" 운송장아이디: "+release.getWaybillId()
+                       +" 아이디: "+release.getId()
+                       +" 창고아이디: "+release.getWarehouseId());
   }
 
 

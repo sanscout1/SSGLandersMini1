@@ -78,13 +78,13 @@ public class WaybillDao {
   }
 
   // 운송장 추가
-  public void waybillInsert(WaybillVO waybillVO) {
+  public int waybillInsert(WaybillVO waybillVO){
+    int max = 0;
     try {
       connectDB();
       String sql = "INSERT INTO waybill " +
-              "(dep_name,dep_city,dep_city_num,arr_city, arr_city_num,arr_name,way_num)" +
-              "values(?,?,?,?,?,?,?)";
-
+                   "(dep_name,dep_city,dep_city_num,arr_city, arr_city_num,arr_name,way_num)" +
+                   "values(?,?,?,?,?,?,?)";
       PreparedStatement pstmt = conn.prepareStatement(sql);
       pstmt.setString(1, waybillVO.getDep_name());
       pstmt.setString(2, waybillVO.getDep_city());
@@ -94,9 +94,19 @@ public class WaybillDao {
       pstmt.setString(6, waybillVO.getArr_name());
       pstmt.setInt(7, waybillVO.getWay_num());
 
-
       int rows = pstmt.executeUpdate();
-      System.out.println("저장된 행 수: " + rows);
+
+
+      // 가장큰 way_id 가져오기
+      System.out.println("이부분은 왔나?");
+      sql = "select way_id from waybill order by way_id DESC LIMIT 1";
+      pstmt = conn.prepareStatement(sql);
+      ResultSet rs = pstmt.executeQuery();
+
+      if(rs.next()){
+        max = rs.getInt("way_id");
+      }
+      System.out.println(max+"***********");
 
       //PreparedStatement 닫기
       pstmt.close();
@@ -105,12 +115,13 @@ public class WaybillDao {
     }finally {
       closeDB();
     }
+    return max;
   }
 
   // 운송장 수정
-  public void waybillUpdate(int searchNum, WaybillVO waybillVO) {
+  public void waybillUpdate(int searchNum, WaybillVO waybillVO){
     try {
-      connectDB();
+
       String sql = new StringBuilder().append("UPDATE waybill SET ")
               .append("dep_name=? ,")
               .append("dep_city=? ,")
@@ -139,13 +150,11 @@ public class WaybillDao {
       pstmt.close();
     } catch (Exception e) {
       e.printStackTrace();
-    }finally {
-      closeDB();
     }
   }
 
   // 운송장 한개 출력??
-  public WaybillVO waybillSelect(int selectNum) {
+  public WaybillVO waybillSelect(int selectNum){
     return new WaybillVO();
   }
 }

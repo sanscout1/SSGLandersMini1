@@ -12,7 +12,7 @@ public class DispatchService {
   Scanner sc = new Scanner(System.in);
 
   // 배차등록하기
-  public void dispatchAdd() {
+  public int dispatchAdd() {
     System.out.println("==새로운 배차를 등록합니다==");
     System.out.println("==차량아이디 입력하세요==");
     int veh_id = Integer.parseInt(sc.nextLine());
@@ -20,7 +20,8 @@ public class DispatchService {
     int approval = 1; // default approval: 1
 
     DispatchVO dispatchVO = new DispatchVO(veh_id, now, approval);
-    dispatchDao.dispatchInsert(dispatchVO);
+    int did = dispatchDao.dispatchInsert(dispatchVO);
+    return did;
   }
 
   // 배차 리스트 출력 // approval 1인거 출력
@@ -59,9 +60,9 @@ public class DispatchService {
   // 배차 객체 하나 출력
   public void dispatchPrint(DispatchVO dispatchVo) {
     System.out.print("배차아이디: " + dispatchVo.getId()
-            + " 차량번호: " + dispatchVo.getVehicle()
-            + " 배차날짜: " + dispatchVo.getDate()
-            + " 배차확인: "
+                     + " 차량번호: " + dispatchVo.getVehicle()
+                     + " 배차날짜: " + dispatchVo.getDate()
+                     + " 배차확인: "
     );
     System.out.println((dispatchVo.getApproval() == 1) ? "가능" : "불가능");
 
