@@ -15,6 +15,79 @@ public class WarehouseVO {
     private String addressCity;
     private int totalCapacity;
     private int usingCapacity;
+
+    public int getWarehouseID() {
+        return warehouseID;
+    }
+
+    public void setWarehouseID(int warehouseID) {
+        this.warehouseID = warehouseID;
+    }
+
+    public int getUserID() {
+        return userID;
+    }
+
+    public void setUserID(int userID) {
+        this.userID = userID;
+    }
+
+    public int getWarehouseType() {
+        return warehouseType;
+    }
+
+    public void setWarehouseType(int warehouseType) {
+        this.warehouseType = warehouseType;
+    }
+
+    public String getWarehouseName() {
+        return warehouseName;
+    }
+
+    public void setWarehouseName(String warehouseName) {
+        this.warehouseName = warehouseName;
+    }
+
+    public String getAddressCity() {
+        return addressCity;
+    }
+
+    public void setAddressCity(String addressCity) {
+        this.addressCity = addressCity;
+    }
+
+    public int getTotalCapacity() {
+        return totalCapacity;
+    }
+
+    public void setTotalCapacity(int totalCapacity) {
+        this.totalCapacity = totalCapacity;
+    }
+
+    public int getUsingCapacity() {
+        return usingCapacity;
+    }
+
+    public void setUsingCapacity(int usingCapacity) {
+        this.usingCapacity = usingCapacity;
+    }
+
+    public int getCharge() {
+        return charge;
+    }
+
+    public void setCharge(int charge) {
+        this.charge = charge;
+    }
+
+    public int getCost() {
+        return cost;
+    }
+
+    public void setCost(int cost) {
+        this.cost = cost;
+    }
+
     private int charge;  // 사용자에게 부가할 용량당 가격
     private int cost;   // 용량당 창고 유지비용
 
