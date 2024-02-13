@@ -64,7 +64,7 @@ public class WaybillDao {
         waybillVOList.add(waybillVO);
 
       }
-//
+
       rs.close();
       pstmt.close();
 
@@ -121,7 +121,7 @@ public class WaybillDao {
   // 운송장 수정
   public void waybillUpdate(int searchNum, WaybillVO waybillVO){
     try {
-
+      connectDB();
       String sql = new StringBuilder().append("UPDATE waybill SET ")
               .append("dep_name=? ,")
               .append("dep_city=? ,")
@@ -150,6 +150,8 @@ public class WaybillDao {
       pstmt.close();
     } catch (Exception e) {
       e.printStackTrace();
+    }finally {
+      closeDB();
     }
   }
 

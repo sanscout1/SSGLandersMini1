@@ -181,7 +181,7 @@ public class ReleaseDao {
         releaseVO.setQuentity(rs.getInt("p_quantity"));
         releaseVO.setState(rs.getInt("state"));
         releaseVO.setApproval(rs.getInt("approval"));
-        releaseVO.setDispatchId(rs.getInt("Did")); // 다른테이블
+        releaseVO.setDispatchId(rs.getInt("Did"));
         releaseVO.setWaybillId(rs.getInt("way_id"));
         releaseVO.setUserId(rs.getInt("UID"));
         releaseVO.setWarehouseId(rs.getInt("WID"));
