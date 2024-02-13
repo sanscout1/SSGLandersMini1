@@ -36,9 +36,7 @@ public class DispatchDao {
   public void dispatchInsert(DispatchVO dispatchVO) {
 
     try {
-//      Class.forName("com.mysql.cj.jdbc.Driver");
-//      conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/ssglandersretail?serverTimezone=Asia/Seoul", "root", "1111");
-
+      connectDB();
 
       String sql = "INSERT INTO dispatch " +
               "(veh_id,dis_date,approval)" +
@@ -57,6 +55,8 @@ public class DispatchDao {
       pstmt.close();
     } catch (Exception e) {
       e.printStackTrace();
+    } finally {
+      closeDB();
     }
   }
 
@@ -66,9 +66,7 @@ public class DispatchDao {
     List<DispatchVO> dispatchVOList = new ArrayList<>();
 
     try {
-      Class.forName("com.mysql.cj.jdbc.Driver");
-      conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/ssglandersretail?serverTimezone=Asia/Seoul", "root", "1111");
-
+      connectDB();
       String sql = new StringBuilder().append("SELECT * FROM dispatch").toString();
       PreparedStatement pstmt = conn.prepareStatement(sql);
 
@@ -88,6 +86,8 @@ public class DispatchDao {
 
     } catch (Exception e) {
       e.printStackTrace();
+    } finally {
+      closeDB();
     }
     return dispatchVOList;
   }
@@ -95,6 +95,7 @@ public class DispatchDao {
   // 배차 정보 수정
   public void dispatchUpdate(int searchNum, int vehicleNum) {
     try {
+      connectDB();
       String sql = new StringBuilder().append("UPDATE dispatch SET ")
               .append("veh_id=? ")
               .append("where Did=?")
@@ -111,12 +112,15 @@ public class DispatchDao {
       pstmt.close();
     } catch (Exception e) {
       e.printStackTrace();
+    }finally {
+      closeDB();
     }
   }
 
   // 선택한 번호 approval 0으로 변경
   public void dispatchDelete(int deleteNum, int approvalNum) {
     try {
+      connectDB();
       String sql = new StringBuilder().append("UPDATE dispatch SET ")
               .append("approval=? ")
               .append("where Did=?")
@@ -133,6 +137,8 @@ public class DispatchDao {
       pstmt.close();
     } catch (Exception e) {
       e.printStackTrace();
+    }finally {
+      closeDB();
     }
   }
 

@@ -2,6 +2,7 @@ package Service;
 
 import DAO.ReleaseDao;
 import VO.ReleaseVO;
+import VO.UserVO;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ public class ReleaseService {
   ReleaseDao releaseDao = new ReleaseDao();
   Scanner sc = new Scanner(System.in);
 
-  // 출고 요청하기
+  // 출고 요청하기 / 둘다가능
   public void releaseRequest() throws ParseException {
     System.out.println("==출고 요청합니다==");
 
@@ -33,25 +34,26 @@ public class ReleaseService {
     releaseDao.releaseRequestInsert(releaseVO); // insert할 객체 보냄
   }
 
-  // 출고리스트 출력하기
-  public void releaseList() {
-    List<ReleaseVO> releaseList;
+  // 출고리스트 출력하기 / 유저, 관리자 구분
+  public void releaseList(UserVO userVO) {
+    List<ReleaseVO> releaseList; // 리스트
 
     System.out.println("==출고 리스트 출력합니다==");
-
-    releaseList = releaseDao.releaseListSelect();  // 리스트 출력리스트
+    releaseList = releaseDao.releaseListSelect(userVO);  // 리스트 출력리스트
     releaseListPrint(releaseList); // 리스트 출력
   }
 
-  // 출고 상품 검색
-  public void releaseSearch(){
+
+
+  // 출고 상품 검색 / 유저 관리자 구분
+  public void releaseSearch(UserVO userVO) {
     List<ReleaseVO> releaseList;
 
     System.out.println("==검색할 출고 상품이름을 입력하세요==");
     String searchProduct = sc.nextLine();
 
     System.out.println("== 해당 상품의 출고리스트를 출력합니다==");
-    releaseList = releaseDao.releaseSearchSelect(searchProduct);
+    releaseList = releaseDao.releaseSearchSelect(userVO, searchProduct);
     releaseListPrint(releaseList); // 리스트 출력
   }
 
@@ -62,7 +64,7 @@ public class ReleaseService {
     }
   }
 
-  // 미승인 리스트 출력
+  // 미승인 리스트 출력 / 관리자가능
   public void releaseApproveList(){
     List<ReleaseVO> releaseList;
     System.out.println("==미승인 리스트 출력==");
@@ -70,7 +72,7 @@ public class ReleaseService {
     releaseListPrint(releaseList); // 리스트 출력
   }
 
-  // 승인하기
+  // 승인하기 / 관리자 가능
   public void releaseApprove(){
     System.out.println("==수정하기==");
     System.out.println("==수정할 출고번호 입력하세요==");

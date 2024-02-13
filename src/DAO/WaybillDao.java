@@ -1,6 +1,7 @@
 package DAO;
 
 import VO.ReleaseVO;
+import VO.UserVO;
 import VO.WaybillVO;
 
 import java.sql.*;
@@ -32,15 +33,20 @@ public class WaybillDao {
   }
 
   // 운송장 내역 출력
-  public List<WaybillVO> waybillListSelect(){
+  public List<WaybillVO> waybillListSelect(UserVO userVO){
     List<WaybillVO> waybillVOList = new ArrayList<>();
-
+    PreparedStatement pstmt;
     try {
-//      Class.forName("com.mysql.cj.jdbc.Driver");
-//      conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/ssglandersretail?serverTimezone=Asia/Seoul", "root", "1111");
+      connectDB();
 
-      String sql = new StringBuilder().append("SELECT * FROM waybill").toString();
-      PreparedStatement pstmt = conn.prepareStatement(sql);
+      if(userVO.getUserType() == 1){
+        String sql = new StringBuilder().append("SELECT * FROM waybill").toString();
+        pstmt = conn.prepareStatement(sql);
+      }else {
+        String sql = new StringBuilder().append("SELECT * FROM ssglandersretail.waybill w join ssglandersretail.release r on w.way_id = r.WID WHERE r.UID = ?").toString();
+        pstmt = conn.prepareStatement(sql);
+        pstmt.setInt(1, userVO.getUserID());
+      }
 
       ResultSet rs = pstmt.executeQuery();
       while (rs.next()) {
@@ -65,13 +71,16 @@ public class WaybillDao {
 
     } catch (Exception e) {
       e.printStackTrace();
+    }finally {
+      closeDB();
     }
     return waybillVOList;
   }
 
   // 운송장 추가
-  public void waybillInsert(WaybillVO waybillVO){
+  public void waybillInsert(WaybillVO waybillVO) {
     try {
+      connectDB();
       String sql = "INSERT INTO waybill " +
               "(dep_name,dep_city,dep_city_num,arr_city, arr_city_num,arr_name,way_num)" +
               "values(?,?,?,?,?,?,?)";
@@ -93,13 +102,15 @@ public class WaybillDao {
       pstmt.close();
     } catch (SQLException e) {
       e.printStackTrace();
+    }finally {
+      closeDB();
     }
   }
 
   // 운송장 수정
-  public void waybillUpdate(int searchNum, WaybillVO waybillVO){
+  public void waybillUpdate(int searchNum, WaybillVO waybillVO) {
     try {
-
+      connectDB();
       String sql = new StringBuilder().append("UPDATE waybill SET ")
               .append("dep_name=? ,")
               .append("dep_city=? ,")
@@ -128,11 +139,13 @@ public class WaybillDao {
       pstmt.close();
     } catch (Exception e) {
       e.printStackTrace();
+    }finally {
+      closeDB();
     }
   }
 
   // 운송장 한개 출력??
-  public WaybillVO waybillSelect(int selectNum){
+  public WaybillVO waybillSelect(int selectNum) {
     return new WaybillVO();
   }
 }

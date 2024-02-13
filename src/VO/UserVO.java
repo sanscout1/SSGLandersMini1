@@ -13,5 +13,4 @@ public class UserVO {
     private String addressCity;
     private int addressNum;
     private boolean approval;
-
 }

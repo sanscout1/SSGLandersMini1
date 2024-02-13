@@ -2,6 +2,7 @@ package Service;
 
 import DAO.WaybillDao;
 import VO.ReleaseVO;
+import VO.UserVO;
 import VO.WaybillVO;
 
 import java.util.Date;
@@ -12,20 +13,20 @@ public class WaybillService {
   WaybillDao waybillDao = new WaybillDao();
   Scanner sc = new Scanner(System.in);
 
-  // 운송장 내역출력 o
-  public void waybillList() {
+  // 운송장 내역출력 / 관리자, 유저 구분
+  public void waybillList(UserVO userVO) {
     List<WaybillVO> waybillVOList;
 
     System.out.println("==출고 리스트 출력합니다==");
 
-    waybillVOList = waybillDao.waybillListSelect();  // 리스트 출력리스트
+    waybillVOList = waybillDao.waybillListSelect(userVO);  // 리스트 출력리스트
     for (WaybillVO waybillVO : waybillVOList) {
       waybillPrint(waybillVO); // 리스트 출력
     }
 
   }
 
-  //운송장 등록 o
+  //운송장 등록
   public void waybillAdd() {
     System.out.println("==운송장 등록합니다==");
     System.out.println("==보내는사람 입력하세요==");
@@ -47,7 +48,7 @@ public class WaybillService {
     waybillDao.waybillInsert(waybillVO); // insert할 객체 보냄
   }
 
-  //운송장 수정 o
+  //운송장 수정
   public void waybillModify() {
     System.out.println("==운송장수정합니다==");
     System.out.println("==수정할 출고번호 입력하세요==");

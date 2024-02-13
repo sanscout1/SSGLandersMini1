@@ -2,6 +2,7 @@ package DAO;
 
 import VO.ReceiptVO;
 import VO.ReleaseVO;
+import VO.UserVO;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -35,21 +36,27 @@ public class ReleaseDao {
   }
 
   //출고리스트 출력
-  public List<ReleaseVO> releaseListSelect() {
+  public List<ReleaseVO> releaseListSelect(UserVO userVO) {
 
     List<ReleaseVO> releaseVOList = new ArrayList<>();
+    PreparedStatement pstmt;
 
     try {
-      String sql = new StringBuilder().append("SELECT * FROM ssglandersretail.release").toString();
+      connectDB();
+      if(userVO.getUserType() == 1){  // 관리자일 때
+        String sql = new StringBuilder().append("SELECT * FROM ssglandersretail.release").toString();
+        pstmt = conn.prepareStatement(sql);
+      }
+      else {  // 일반회원일때
+        String sql = new StringBuilder().append("SELECT * FROM ssglandersretail.release WHERE UID = ?").toString();
+        pstmt = conn.prepareStatement(sql);
+        pstmt.setInt(1, userVO.getUserID());
 
-      //PreparedStatement 얻기 및 값 지정
-      PreparedStatement pstmt = conn.prepareStatement(sql);
-      // PreparedStatement pstmt = conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
+      }
 
       //SQL문 실행
       ResultSet rs = pstmt.executeQuery();
       while (rs.next()) {
-
         ReleaseVO releaseVO = new ReleaseVO();
         releaseVO.setId(rs.getInt("Rel_ID"));
         releaseVO.setDate(rs.getDate("rel_date"));
@@ -63,16 +70,15 @@ public class ReleaseDao {
         releaseVO.setProductId(rs.getInt("PID"));
 
         releaseVOList.add(releaseVO);
-
       }
-      for (ReleaseVO releaseVO : releaseVOList) System.out.println(releaseVO.toString());
 
       rs.close();
       pstmt.close();
 
-
     } catch (Exception e) {
       e.printStackTrace();
+    } finally {
+      closeDB();
     }
     return releaseVOList;
   }
@@ -81,6 +87,7 @@ public class ReleaseDao {
   public void releaseRequestInsert(ReleaseVO release) {
 
     try {
+      connectDB();
       String sql = "INSERT INTO ssglandersretail.release " +
               "(rel_date,p_quantity,state,approval,Did,way_id,UID,WID,PID)" +
               "values(?,?,?,?,?,?,?,?,?)";
@@ -103,21 +110,29 @@ public class ReleaseDao {
       pstmt.close();
     } catch (SQLException e) {
       e.printStackTrace();
+    }finally {
+      closeDB();
     }
   }
 
   // 상품 입력 후 해당 리스트 출력
-  public List<ReleaseVO> releaseSearchSelect(String product) {
+  public List<ReleaseVO> releaseSearchSelect(UserVO userVO, String product) {
     List<ReleaseVO> releaseVOList = new ArrayList<>();
-
+    PreparedStatement pstmt;
     try {
-      String sql = new StringBuilder().append("select * from ssglandersretail.release r join product p on r.pid = p.pid WHERE p.pname like ?").toString();
+      connectDB();
 
-      //PreparedStatement 얻기 및 값 지정
-      PreparedStatement pstmt = conn.prepareStatement(sql);
-      // PreparedStatement pstmt = conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
-      pstmt.setString(1,"%"+product+"%");
-      //SQL문 실행
+      if (userVO.getUserType() == 1) {
+        String sql = new StringBuilder().append("select * from ssglandersretail.release r join ssglandersretail.product p on r.pid = p.pid WHERE p.pname like ?").toString();
+        pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, "%" + product + "%");
+      } else {
+        String sql = new StringBuilder().append("select * from ssglandersretail.release r join ssglandersretail.product p on r.pid = p.pid WHERE p.pname like ? AND r.UID = ?").toString();
+        pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, "%" + product + "%");
+        pstmt.setString(2, userVO.getID());
+      }
+
       ResultSet rs = pstmt.executeQuery();
       while (rs.next()) {
 
@@ -143,6 +158,8 @@ public class ReleaseDao {
 
     } catch (Exception e) {
       e.printStackTrace();
+    }finally {
+      closeDB();
     }
 
     return releaseVOList;
@@ -153,6 +170,7 @@ public class ReleaseDao {
     List<ReleaseVO> releaseVOList = new ArrayList<>();
 
     try {
+      connectDB();
       String sql = new StringBuilder().append("select * from ssglandersretail.release where approval = 0").toString();
 
       //PreparedStatement 얻기 및 값 지정
@@ -185,6 +203,8 @@ public class ReleaseDao {
 
     } catch (Exception e) {
       e.printStackTrace();
+    }finally {
+      closeDB();
     }
 
     return releaseVOList;
@@ -195,6 +215,7 @@ public class ReleaseDao {
   public void releaseApproveUpdate(int searchNum, int approvalNum) {
 
     try {
+      connectDB();
       String sql = new StringBuilder().append("UPDATE ssglandersretail.release SET ")
               .append("approval=? ")
               .append("where Rel_ID=?")
@@ -211,6 +232,8 @@ public class ReleaseDao {
       pstmt.close();
     } catch (SQLException e) {
       e.printStackTrace();
+    } finally {
+      closeDB();
     }
   }
 
