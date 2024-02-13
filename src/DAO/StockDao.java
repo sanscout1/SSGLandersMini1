@@ -1,15 +1,16 @@
 package DAO;
 
 import VO.StockVO;
-import VO.WarehouseVO;
 
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StockDao {
+public class StockDao extends DBconnector{
 
-    private Connection conn = null;
     private static volatile StockDao instance;
 
     public static StockDao getInstance() {  //싱글톤
@@ -22,28 +23,6 @@ public class StockDao {
         createAdminStockRead();
     }
 
-    private void connectDB() {
-        try {
-            //JDBC Driver 등록
-            Class.forName("com.mysql.cj.jdbc.Driver");
-
-            conn = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/ssglandersretail?serverTimezone=Asia/Seoul",
-                    "root",
-                    "0000"
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    private void closeDB() {
-        try {
-            if (conn != null) {
-                conn.close();
-            }
-        } catch (SQLException e) {
-        }
-    }
 
     //회원용 read는 입고 - 출고로 재고 확인 가능하게 만들자.
     private void createUserStockRead(){
@@ -99,7 +78,7 @@ public class StockDao {
             StockVOList = new ArrayList<StockVO>();
             while (rs.next()){
                 StockVO vo = new StockVO(rs.getString(1),rs.getString(2),rs.getString(3)
-                        ,rs.getString(4),rs.getInt(5),rs.getString(6),rs.getString(7),
+                ,rs.getString(4),rs.getInt(5),rs.getString(6),rs.getString(7),
                         rs.getInt(8));
                 StockVOList.add(vo);
             }

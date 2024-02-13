@@ -2,12 +2,15 @@ package DAO;
 
 import VO.FinanceVO;
 
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FinanceDao {
-    private Connection conn = null;
+public class FinanceDao extends DBconnector {
+
     private static volatile FinanceDao instance;
 
     public static FinanceDao getInstance() {  //싱글톤
@@ -17,32 +20,11 @@ public class FinanceDao {
         return instance;
     }
     private FinanceDao(){
-        createTriggerChargeFinance();
-        createTriggerCostFinance();
+//        createTriggerChargeFinance();
+//        createTriggerCostFinance();
     }
 
-    private void connectDB() {
-        try {
-            //JDBC Driver 등록
-            Class.forName("com.mysql.cj.jdbc.Driver");
 
-            conn = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/ssglandersretail?serverTimezone=Asia/Seoul",
-                    "root",
-                    "0000"
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    private void closeDB() {
-        try {
-            if (conn != null) {
-                conn.close();
-            }
-        } catch (SQLException e) {
-        }
-    }
 
     private void createTriggerChargeFinance(){
         try {
