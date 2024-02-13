@@ -65,6 +65,7 @@ public class DispatchService {
     );
     System.out.println((dispatchVo.getApproval() == 1) ? "가능" : "불가능");
 
+
   }
 
 
