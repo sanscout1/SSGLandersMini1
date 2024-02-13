@@ -1,4 +1,7 @@
 package API;
 
-public class IFinanceService {
+public interface IFinanceService {
+    public void printAllFinance();
+    public void printWarehouseFinance();
+
 }
