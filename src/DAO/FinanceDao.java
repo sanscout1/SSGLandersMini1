@@ -17,6 +17,8 @@ public class FinanceDao {
         return instance;
     }
     private FinanceDao(){
+        createTriggerChargeFinance();
+        createTriggerCostFinance();
     }
 
     private void connectDB() {
@@ -39,6 +41,45 @@ public class FinanceDao {
                 conn.close();
             }
         } catch (SQLException e) {
+        }
+    }
+
+    private void createTriggerChargeFinance(){
+        try {
+            connectDB();
+            String sql = "CREATE TRIGGER approvalcharge AFTER UPDATE ON receipt\n" +
+                    "FOR EACH ROW\n" +
+                    "BEGIN\n" +
+                    "    IF NEW.approval = 1 AND OLD.approval = 0 THEN\n" +
+                    "        INSERT INTO finance (fdate, amount, rec_id, ftype)\n" +
+                    "        VALUES (NEW.rec_date, NEW.p_quantity * (SELECT w.charge FROM warehouse w WHERE w.WID = NEW.WID), NEW.Rec_ID, 0);\n" +
+                    "    END IF;\n" +
+                    "END;\n";
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate(sql);
+            stmt.close();
+        } catch (SQLException e) {e.printStackTrace();}
+        finally {
+            closeDB();
+        }
+    }
+    private void createTriggerCostFinance(){
+        try {
+            connectDB();
+            String sql = "CREATE TRIGGER approvalcost AFTER UPDATE ON receipt\n" +
+                    "FOR EACH ROW\n" +
+                    "BEGIN\n" +
+                    "    IF NEW.approval = 1 AND OLD.approval = 0 THEN\n" +
+                    "        INSERT INTO finance (fdate, amount, rec_id, ftype)\n" +
+                    "        VALUES (NEW.rec_date, NEW.p_quantity * (SELECT w.cost FROM warehouse w WHERE w.WID = NEW.WID), NEW.Rec_ID, 1);\n" +
+                    "    END IF;\n" +
+                    "END;\n";
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate(sql);
+            stmt.close();
+        } catch (SQLException e) {e.printStackTrace();}
+        finally {
+            closeDB();
         }
     }
 
