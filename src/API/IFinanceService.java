@@ -1,7 +1,8 @@
 package API;
 
+import VO.UserVO;
+
 public interface IFinanceService {
-    public void printAllFinance();
-    public void printWarehouseFinance();
+    public void financeMenu(UserVO user);
 
 }
