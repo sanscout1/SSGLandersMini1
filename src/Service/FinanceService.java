@@ -20,6 +20,7 @@ public class FinanceService implements IFinanceService {
         return instance;
     }
     private FinanceService(){
+
     }
     Scanner sc = new Scanner(System.in);
 
@@ -116,14 +117,14 @@ public class FinanceService implements IFinanceService {
     private void printCalculateWarehouseFinance(int WID) {
         List<FinanceVO> financeVOList = new ArrayList<FinanceVO>();
         int total =0;
-        financeVOList = financeDao.financeWarehouseRead(WID);
-        for (FinanceVO financeVO : financeVOList) {
-            if(financeVO.getFtype()==0){
-                total += financeVO.getAmount();
-            } else{ total -= financeVO.getAmount();}
-        }
+            financeVOList = financeDao.financeWarehouseRead(WID);
+            for (FinanceVO financeVO : financeVOList) {
+                if(financeVO.getFtype()==0){
+                    total += financeVO.getAmount();
+                } else{ total -= financeVO.getAmount();}
+            }
 
-        System.out.println("창고 번호 : "+WID+"   창고 정산 내역: "+total);
+            System.out.println("창고 번호 : "+WID+"   창고 정산 내역: "+total);
 
     }
 
