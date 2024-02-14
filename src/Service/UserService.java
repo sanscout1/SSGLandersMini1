@@ -31,7 +31,7 @@ public class UserService implements IUserService {
 
     //로그인 메인
     @Override
-    public void memberLogin() {
+    public UserVO memberLogin() {
         System.out.println("***로그인 목록입니다***");
         System.out.println("1. 로그인 | 2. 회원가입 | 3. 아이디 찾기 | 4. 비밀번호 찾기");
         System.out.print("메뉴를 선택해주세요 : ");
@@ -41,8 +41,7 @@ public class UserService implements IUserService {
 
             switch (choice) {
                 case 1:
-                    login();
-                    break;
+                    return login();
 
                 case 2:
                     approveRequest();
@@ -63,10 +62,11 @@ public class UserService implements IUserService {
         } catch (Exception e) {
             memberLogin();
         }
+        return null;
     }
 
     //1. 로그인
-    public void login() {
+    private UserVO login() {
 
         try {
             System.out.print("아이디를 입력해주세요 : ");
@@ -85,10 +85,12 @@ public class UserService implements IUserService {
 
                 if (myUser.getUserType() == 1) {
                     System.out.println("관리자로 로그인되었습니다.");
-                    manageMember();
+                    return myUser;
+                //    manageMember();
                 } else if (myUser.getUserType() == 2) {
                     System.out.println("회원으로 로그인되었습니다.");
-                    checkUser();
+                    return myUser;
+                //    checkUser();
                 }
             } else if (loggedUser != null && !loggedUser.isApproval()) {
                 System.out.println("승인 대기 중입니다. 로그인이 제한되었습니다.");
@@ -106,10 +108,11 @@ public class UserService implements IUserService {
         } catch (Exception e) {
             memberLogin();
         }
+        return myUser;
     }
 
     //2. 회원가입
-    public void approveRequest() {
+    private void approveRequest() {
         try {
             System.out.println("회원 가입을 시작합니다.");
             System.out.println("회원 정보를 입력해주세요.");
@@ -166,7 +169,7 @@ public class UserService implements IUserService {
     }
 
     //3. 아이디 찾기
-    public void findID() {
+    private void findID() {
         try {
             System.out.println("아이디 찾기를 위한 회원 정보를 입력해주세요.");
 
@@ -188,7 +191,7 @@ public class UserService implements IUserService {
     }
 
     //4. 비밀번호 찾기
-    public void findPw() {
+    private void findPw() {
         try {
             System.out.println("비밀번호 찾기를 위한 회원 정보를 입력해주세요.");
             System.out.print("아이디 : ");
@@ -245,7 +248,7 @@ public class UserService implements IUserService {
     }
 
     //1. 조회
-    public void memberSearch() {
+    private void memberSearch() {
         System.out.println("1. 회원 조회 | 2. 쇼핑몰 사업자 회원 조회");
         System.out.print("조회할 메뉴를 선택해주세요: ");
 
@@ -303,7 +306,7 @@ public class UserService implements IUserService {
     }
 
     //1-1-1 회원 상세보기 조회
-    public void memberDetailSearch() {
+    private void memberDetailSearch() {
         try {
             System.out.print("조회할 회원의 ID를 입력해주세요: ");
             String searchID = reader.readLine();
@@ -324,7 +327,7 @@ public class UserService implements IUserService {
     }
 
     //1-1-2 회원 전체 조회
-    public void memberList() {
+    private void memberList() {
         List<UserVO> userVOList = userDAO.userRead();
         System.out.println("================================================================");
         for (UserVO users : userVOList) {
@@ -335,7 +338,7 @@ public class UserService implements IUserService {
     }
 
     //1-1-3 승인 대기자 조회
-    public void pandingList() {
+    private void pandingList() {
         try {
             List<UserVO> pendingUserList = userDAO.userRead();
 
@@ -368,7 +371,7 @@ public class UserService implements IUserService {
     }
 
     //1-2 쇼핑몰 사업자 회원 조회
-    public void taxIdSearch() {
+    private void taxIdSearch() {
         System.out.print("조회할 쇼핑몰 사업자의 TaxID를 입력해주세요: ");
         try {
             String taxID = reader.readLine();
@@ -416,13 +419,13 @@ public class UserService implements IUserService {
     }
 
     //2-1 회원 정보 수정
-    public void memberUpdate() {
+    private void memberUpdate() {
         try {
             System.out.print("수정이 필요한 아이디를 입력해주세요: ");
             String ID = reader.readLine();
 
-            System.out.println("수정할 회원의 정보를 입력해주세요.(1. 관리자 | 2. 회원)");
-            System.out.print("회원 유형 : ");
+            System.out.println("수정할 회원의 정보를 입력해주세요.");
+            System.out.print("회원 유형 : (1. 관리자 | 2. 회원)");
             int utype = Integer.parseInt(reader.readLine());
 
             System.out.print("비밀번호 : ");
@@ -437,6 +440,7 @@ public class UserService implements IUserService {
             System.out.print("거주 번지 : ");
             int addressNum = Integer.parseInt(reader.readLine());
 
+            // true 쳐야 1 들어가는거 체크
             System.out.print("승인여부 : ");
             boolean approval = Boolean.parseBoolean(reader.readLine());
 
@@ -455,7 +459,7 @@ public class UserService implements IUserService {
     }
 
     //2-2 쇼핑몰 사업자 정보 수정
-    public void taxIdUpdate() {
+    private void taxIdUpdate() {
         try {
             System.out.print("쇼핑몰 사업자 정보 수정이 필요한 아이디를 입력해주세요 :");
             String ID = reader.readLine();
@@ -477,7 +481,7 @@ public class UserService implements IUserService {
     }
 
     //3. 삭제
-    public void memberDelete() {
+    private void memberDelete() {
         try {
             System.out.print("삭제할 회원의 아이디를 입력해주세요 : ");
             String ID = reader.readLine();
@@ -497,16 +501,17 @@ public class UserService implements IUserService {
     }
 
     //4. 로그아웃
-    public void logoutId() {
+    private void logoutId() {
         this.myUser = null;
         System.out.println("로그아웃 되었습니다.");
+        memberLogin();
     }
 
     // 회원 목록 메인
     @Override
     public void checkUser() {
         System.out.println("***회원 목록입니다***");
-        System.out.println("1. 내 정보 조회 | 2. 내 정보 수정 | 3. 탈퇴 | 4. 로그아웃");
+        System.out.println("1. 내 정보 조회 | 2. 내 정보 수정 | 3. 탈퇴 | 4. 로그아웃 | 5. 메뉴");
         System.out.print("메뉴를 선택해주세요 : ");
 
         try {
@@ -529,6 +534,8 @@ public class UserService implements IUserService {
                 case 4:
                     logoutId();
                     break;
+                case 5:
+                    break;
 
                 default:
                     System.out.println("잘못된 메뉴 선택입니다.");
@@ -540,7 +547,7 @@ public class UserService implements IUserService {
     }
 
     //1. 내 정보 조회
-    public void shopUserList() {
+    private void shopUserList() {
         System.out.println("================================================================");
         displayUserInfo(userDAO.getUserId(myUser.getID()));
         System.out.println("================================================================");
@@ -548,7 +555,7 @@ public class UserService implements IUserService {
     }
 
     //2. 내 정보 수정
-    public void userUpdate() {
+    private void userUpdate() {
         System.out.println("1. 회원 정보 수정 | 2. 쇼핑몰 사업자 정보 수정");
         System.out.print("수정할 메뉴를 선택해주세요 : ");
 
@@ -574,11 +581,9 @@ public class UserService implements IUserService {
     }
 
     //2-1 회원 정보 수정
-    public void myInfoUpdate() {
+    private void myInfoUpdate() {
         try {
             System.out.println("회원 정보 수정을 시작합니다.");
-            System.out.print("아이디를 입력해주세요 : ");
-            String ID = reader.readLine();
 
             System.out.println("수정 할 정보를 입력해주세요.");
             System.out.print("비밀번호 : ");
@@ -593,7 +598,7 @@ public class UserService implements IUserService {
             System.out.print("거주 번지 : ");
             int addressNum = Integer.parseInt(reader.readLine());
 
-            boolean success = userDAO.myInfoUpdate(ID, password, userName, addressCity, addressNum);
+            boolean success = userDAO.myInfoUpdate(myUser.getID(), password, userName, addressCity, addressNum);
 
             if (success) {
                 System.out.println("회원정보가 수정되었습니다.");
@@ -607,7 +612,7 @@ public class UserService implements IUserService {
     }
 
     //2-2 내 사업자 등록 번호 수정
-    public void mytaxIdUpdate() {
+    private void mytaxIdUpdate() {
         try {
             System.out.println("쇼핑몰 사업자 정보 수정을 시작합니다.");
             System.out.print("비밀번호를 입력해주세요 : ");
@@ -630,7 +635,7 @@ public class UserService implements IUserService {
     }
 
     //3. 회원 탈퇴
-    public void userDelete() {
+    private void userDelete() {
         try {
             System.out.println("회원 탈퇴를 시작합니다.");
             System.out.print("비밀번호를 입력해주세요 : ");
@@ -639,10 +644,11 @@ public class UserService implements IUserService {
 
             if (success) {
                 System.out.println("회원 탈퇴가 완료되었습니다.");
+                logoutId();
             } else {
                 System.out.println("회원 탈퇴에 실패하였습니다.");
+                checkUser();
             }
-            logoutId();
         } catch (Exception e) {
             logoutId();
         }

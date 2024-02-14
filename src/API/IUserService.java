@@ -1,8 +1,10 @@
 package API;
 
+import VO.UserVO;
+
 public interface IUserService {
 
-    public void memberLogin();
+    public UserVO memberLogin();
     public void manageMember();
     public void checkUser();
 }
