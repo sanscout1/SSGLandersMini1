@@ -1,7 +1,9 @@
 package API;
 
+import VO.UserVO;
+
 public interface IStockService {
 
-    void printStock();
+     public void stockMenu(UserVO user);
 
 }

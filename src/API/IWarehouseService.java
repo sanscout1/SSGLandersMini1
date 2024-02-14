@@ -1,9 +1,8 @@
 package API;
 
+import VO.UserVO;
+
 public interface IWarehouseService {
 
-    // 창고 등록
-    public void addWarehouse();
-    // 창고 조회
-    public void getWarehouse();
+    public void warehouseMenu(UserVO user);
 }

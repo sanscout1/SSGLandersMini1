@@ -70,4 +70,32 @@ public class WarehouseDao extends DBconnector{
         return warehouseVOList;
     }
 
+    public List<WarehouseVO> warehouseChargeRead(int wtype) {
+        List<WarehouseVO> warehouseVOList = null;
+        try {
+            connectDB();
+            String sql = "select WID,UID,wtype,wname,address_city,totalcapacity,usingcapacity,charge,cost " +
+                    "from warehouse " +
+                    "where wtype = ?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, wtype);
+            ResultSet rs = pstmt.executeQuery();
+            warehouseVOList = new ArrayList<WarehouseVO>();
+
+            while (rs.next()){
+                WarehouseVO vo = new WarehouseVO(rs.getInt("WID"),rs.getInt("UID")
+                        ,rs.getInt("wtype"),rs.getString("wname"),rs.getString("address_city")
+                        ,rs.getInt("totalcapacity"),rs.getInt("usingcapacity"),rs.getInt("charge")
+                        ,rs.getInt("cost"));
+                warehouseVOList.add(vo);
+            }
+            rs.close();
+            pstmt.close();
+        } catch (Exception e) {
+        } finally {
+            closeDB();
+        }
+        return warehouseVOList;
+    }
+
 }
