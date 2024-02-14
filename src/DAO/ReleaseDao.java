@@ -37,10 +37,12 @@ public class ReleaseDao {
 
   public ReleaseDao() {
 //    createTrigger();
+//    createTriggerWarehouse();
   }
 
   //회원용 read는 입고 - 출고로 재고 확인 가능하게 만들자.
-  private void createTrigger() {
+  private void createTriggerStock() {
+    // 승인시 stock의 quentity 줄이기
     try {
       connectDB();
       String sql = """
@@ -63,6 +65,42 @@ public class ReleaseDao {
                       SET quantity = stock_quantity_diff
                       WHERE PID IN (SELECT PID FROM ssglandersretail.release WHERE Rel_ID = release_id)\s
                       AND WID IN (SELECT WID FROM ssglandersretail.release WHERE Rel_ID = release_id);
+                  END IF;
+              END;""";
+      PreparedStatement pstmt = conn.prepareStatement(sql);
+      pstmt.executeUpdate();
+      pstmt.close();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } finally {
+      closeDB();
+    }
+  }
+
+  private void createTriggerWarehouse(){
+    // 승인시 warehouse의 usingcapacity 양 줄이기
+    try {
+      connectDB();
+      String sql = """
+              CREATE PROCEDURE update_usingcapacity_after_approval(IN release_id INT)
+              BEGIN
+                  DECLARE product_capacity INT;
+                  DECLARE released_quantity INT;
+                            
+                  -- 출고 승인일 때만 실행
+                  IF (SELECT approval FROM `release` WHERE Rel_ID = release_id) = 1 THEN
+                      -- 출고 테이블에서 출고된 수량 가져오기
+                      SELECT p_quantity INTO released_quantity FROM `release` WHERE Rel_ID = release_id;
+                            
+                      -- 출고된 상품의 용량 가져오기
+                      SELECT usecapacity INTO product_capacity
+                      FROM product
+                      WHERE PID = (SELECT PID FROM `release` WHERE Rel_ID = release_id);
+                            
+                      -- Warehouse 테이블의 usingcapacity 업데이트
+                      UPDATE warehouse w
+                      SET usingcapacity = usingcapacity - (released_quantity * product_capacity)
+                      WHERE WID = (SELECT WID FROM `release` WHERE Rel_ID = release_id);
                   END IF;
               END;""";
       PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -182,7 +220,6 @@ public class ReleaseDao {
       pstmt.setInt(9, release.getProductId()); //
 
       int rows = pstmt.executeUpdate();
-      System.out.println("저장된 행 수: " + rows);
 
       //PreparedStatement 닫기
       pstmt.close();
@@ -304,13 +341,19 @@ public class ReleaseDao {
       pstmt.setInt(2, searchNum);
 
       int rows = pstmt.executeUpdate();
-      System.out.println("저장된 행 수: " + rows);
 
+      // 출고에서 수량줄이기 프로시저
       CallableStatement cstmt = conn.prepareCall("{call your_stock_trigger_procedure(?)}");
       // 프로시저 매개변수 설정
       cstmt.setInt(1, searchNum);
       // 프로시저 호출
       cstmt.execute();
+
+      // 창고에서 usingcapacity 줄이기 프로시저
+      cstmt = conn.prepareCall("{call update_usingcapacity_after_approval(?)}");
+      cstmt.setInt(1, searchNum);
+      cstmt.execute();
+
 
       cstmt.close();
       pstmt.close();

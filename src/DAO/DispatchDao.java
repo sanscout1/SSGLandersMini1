@@ -13,7 +13,6 @@ public class DispatchDao {
 
   public void connectDB() {
     try {
-      System.out.println("실행됨");
       //JDBC Driver 등록
       Class.forName("com.mysql.cj.jdbc.Driver");
       conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/ssglandersretail?serverTimezone=Asia/Seoul", "root", "1111");
@@ -32,6 +31,8 @@ public class DispatchDao {
     }
   }
 
+
+
   // 배차 입력
   public int dispatchInsert(DispatchVO dispatchVO) {
     int max = 0;
@@ -45,11 +46,10 @@ public class DispatchDao {
       PreparedStatement pstmt = conn.prepareStatement(sql);
       pstmt.setInt(1, dispatchVO.getVehicle());
       pstmt.setTimestamp(2, new java.sql.Timestamp(dispatchVO.getDate().getTime()));
-      pstmt.setInt(3, dispatchVO.getApproval());
+      pstmt.setInt(3, 0);
 
 
       int rows = pstmt.executeUpdate();
-      System.out.println("저장된 행 수: " + rows);
 
       // 가장큰 d_id 가져오기
       sql = "select Did from dispatch order by Did DESC LIMIT 1";
@@ -77,7 +77,8 @@ public class DispatchDao {
     List<DispatchVO> dispatchVOList = new ArrayList<>();
 
     try {
-      connectDB();
+      Class.forName("com.mysql.cj.jdbc.Driver");
+      conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/ssglandersretail?serverTimezone=Asia/Seoul", "root", "1111");
 
       String sql = new StringBuilder().append("SELECT * FROM dispatch").toString();
       PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -98,8 +99,6 @@ public class DispatchDao {
 
     } catch (Exception e) {
       e.printStackTrace();
-    }finally {
-      closeDB();
     }
     return dispatchVOList;
   }
@@ -108,6 +107,7 @@ public class DispatchDao {
   public void dispatchUpdate(int searchNum, int vehicleNum) {
     try {
       connectDB();
+
       String sql = new StringBuilder().append("UPDATE dispatch SET ")
               .append("veh_id=? ")
               .append("where Did=?")
@@ -118,7 +118,6 @@ public class DispatchDao {
       pstmt.setInt(2, searchNum);
 
       int rows = pstmt.executeUpdate();
-      System.out.println("저장된 행 수: " + rows);
 
       //PreparedStatement 닫기
       pstmt.close();
@@ -132,7 +131,6 @@ public class DispatchDao {
   // 선택한 번호 approval 0으로 변경
   public void dispatchDelete(int deleteNum, int approvalNum) {
     try {
-      connectDB();
       String sql = new StringBuilder().append("UPDATE dispatch SET ")
               .append("approval=? ")
               .append("where Did=?")
@@ -143,14 +141,11 @@ public class DispatchDao {
       pstmt.setInt(2, deleteNum);
 
       int rows = pstmt.executeUpdate();
-      System.out.println("저장된 행 수: " + rows);
 
       //PreparedStatement 닫기
       pstmt.close();
     } catch (Exception e) {
       e.printStackTrace();
-    }finally {
-      closeDB();
     }
   }
 

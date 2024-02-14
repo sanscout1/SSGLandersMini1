@@ -13,7 +13,6 @@ public class WaybillDao {
 
   public void connectDB() {
     try {
-      System.out.println("실행됨");
       //JDBC Driver 등록
       Class.forName("com.mysql.cj.jdbc.Driver");
       conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/ssglandersretail?serverTimezone=Asia/Seoul", "root", "1111");
@@ -64,7 +63,7 @@ public class WaybillDao {
         waybillVOList.add(waybillVO);
 
       }
-
+//
       rs.close();
       pstmt.close();
 
@@ -106,7 +105,6 @@ public class WaybillDao {
       if(rs.next()){
         max = rs.getInt("way_id");
       }
-      System.out.println(max+"***********");
 
       //PreparedStatement 닫기
       pstmt.close();
@@ -121,7 +119,7 @@ public class WaybillDao {
   // 운송장 수정
   public void waybillUpdate(int searchNum, WaybillVO waybillVO){
     try {
-      connectDB();
+
       String sql = new StringBuilder().append("UPDATE waybill SET ")
               .append("dep_name=? ,")
               .append("dep_city=? ,")
@@ -144,14 +142,11 @@ public class WaybillDao {
       pstmt.setInt(8, searchNum);
 
       int rows = pstmt.executeUpdate();
-      System.out.println("저장된 행 수: " + rows);
 
       //PreparedStatement 닫기
       pstmt.close();
     } catch (Exception e) {
       e.printStackTrace();
-    }finally {
-      closeDB();
     }
   }
 
