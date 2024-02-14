@@ -35,6 +35,46 @@ public class ReleaseDao {
     }
   }
 
+  public ReleaseDao() {
+//    createTrigger();
+  }
+
+  //회원용 read는 입고 - 출고로 재고 확인 가능하게 만들자.
+  private void createTrigger() {
+    try {
+      connectDB();
+      String sql = """
+              CREATE PROCEDURE your_stock_trigger_procedure(IN release_id INT)
+              BEGIN
+                  DECLARE stock_quantity_diff INT;
+                            
+                  -- 출고 승인이 되었을 때만 실행
+                  IF (SELECT approval FROM ssglandersretail.release WHERE Rel_ID = release_id) = 1 THEN
+                      -- 변경 전과 변경 후의 출고 수량 차이 계산
+                      SET stock_quantity_diff = (
+                          SELECT s.quantity - r.p_quantity
+                          FROM ssglandersretail.stock s
+                          JOIN ssglandersretail.release r ON s.PID = r.PID AND s.WID = r.WID
+                          WHERE r.Rel_ID = release_id
+                      );
+                            
+                      -- stock 테이블의 재고 수량 업데이트
+                      UPDATE ssglandersretail.stock
+                      SET quantity = stock_quantity_diff
+                      WHERE PID IN (SELECT PID FROM ssglandersretail.release WHERE Rel_ID = release_id)\s
+                      AND WID IN (SELECT WID FROM ssglandersretail.release WHERE Rel_ID = release_id);
+                  END IF;
+              END;""";
+      PreparedStatement pstmt = conn.prepareStatement(sql);
+      pstmt.executeUpdate();
+      pstmt.close();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } finally {
+      closeDB();
+    }
+  }
+
   //출고리스트 출력
   public List<ReleaseVO> releaseListSelect(UserVO userVO) {
 
@@ -43,11 +83,10 @@ public class ReleaseDao {
 
     try {
       connectDB();
-      if(userVO.getUserType() == 1){  // 관리자일 때
+      if (userVO.getUserType() == 1) {  // 관리자일 때
         String sql = new StringBuilder().append("SELECT * FROM ssglandersretail.release").toString();
         pstmt = conn.prepareStatement(sql);
-      }
-      else {  // 일반회원일때
+      } else {  // 일반회원일때
         String sql = new StringBuilder().append("SELECT * FROM ssglandersretail.release WHERE UID = ?").toString();
         pstmt = conn.prepareStatement(sql);
         pstmt.setInt(1, userVO.getUserID());
@@ -83,7 +122,7 @@ public class ReleaseDao {
     return releaseVOList;
   }
 
-  public void releaseDispatchWaybillUpdate(int waybillNum, int dispatchNum){
+  public void releaseDispatchWaybillUpdate(int waybillNum, int dispatchNum) {
 
     int max = 0;
     try {
@@ -93,7 +132,7 @@ public class ReleaseDao {
       PreparedStatement pstmt = conn.prepareStatement(sql);
       ResultSet rs = pstmt.executeQuery();
 
-      if(rs.next()){
+      if (rs.next()) {
         max = rs.getInt("Rel_id");
       }
 
@@ -149,7 +188,7 @@ public class ReleaseDao {
       pstmt.close();
     } catch (SQLException e) {
       e.printStackTrace();
-    }finally {
+    } finally {
       closeDB();
     }
   }
@@ -197,7 +236,7 @@ public class ReleaseDao {
 
     } catch (Exception e) {
       e.printStackTrace();
-    }finally {
+    } finally {
       closeDB();
     }
 
@@ -242,7 +281,7 @@ public class ReleaseDao {
 
     } catch (Exception e) {
       e.printStackTrace();
-    }finally {
+    } finally {
       closeDB();
     }
 
@@ -267,8 +306,15 @@ public class ReleaseDao {
       int rows = pstmt.executeUpdate();
       System.out.println("저장된 행 수: " + rows);
 
-      //PreparedStatement 닫기
+      CallableStatement cstmt = conn.prepareCall("{call your_stock_trigger_procedure(?)}");
+      // 프로시저 매개변수 설정
+      cstmt.setInt(1, searchNum);
+      // 프로시저 호출
+      cstmt.execute();
+
+      cstmt.close();
       pstmt.close();
+
     } catch (SQLException e) {
       e.printStackTrace();
     } finally {
