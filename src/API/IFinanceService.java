@@ -1,4 +1,8 @@
 package API;
 
-public class IFinanceService {
+import VO.UserVO;
+
+public interface IFinanceService {
+    public void financeMenu(UserVO user);
+
 }

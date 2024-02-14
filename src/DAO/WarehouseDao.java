@@ -3,13 +3,14 @@ package DAO;
 
 import VO.WarehouseVO;
 
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WarehouseDao {
+public class WarehouseDao extends DBconnector{
 
-    private Connection conn = null;
     private static volatile WarehouseDao instance;
 
     public static WarehouseDao getInstance() {  //싱글톤
@@ -19,29 +20,6 @@ public class WarehouseDao {
         return instance;
     }
 
-    private void connectDB() {
-        try {
-            //JDBC Driver 등록
-            Class.forName("com.mysql.cj.jdbc.Driver");
-
-            conn = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/sshlandersretatil?serverTimezone=Asia/Seoul",
-                    "root",
-                    "0000"
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void closeDB() {
-        try {
-            if (conn != null) {
-                conn.close();
-            }
-        } catch (SQLException e) {
-        }
-    }
 
     public void warehouseCreate(WarehouseVO warehouse) {
         try {
@@ -73,6 +51,34 @@ public class WarehouseDao {
             String sql = "select WID,UID,wtype,wname,address_city,totalcapacity,usingcapacity,charge,cost " +
                     "from warehouse";
             PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery();
+            warehouseVOList = new ArrayList<WarehouseVO>();
+
+            while (rs.next()){
+                WarehouseVO vo = new WarehouseVO(rs.getInt("WID"),rs.getInt("UID")
+                ,rs.getInt("wtype"),rs.getString("wname"),rs.getString("address_city")
+                ,rs.getInt("totalcapacity"),rs.getInt("usingcapacity"),rs.getInt("charge")
+                ,rs.getInt("cost"));
+                warehouseVOList.add(vo);
+            }
+            rs.close();
+            pstmt.close();
+        } catch (Exception e) {
+        } finally {
+            closeDB();
+        }
+        return warehouseVOList;
+    }
+
+    public List<WarehouseVO> warehouseChargeRead(int wtype) {
+        List<WarehouseVO> warehouseVOList = null;
+        try {
+            connectDB();
+            String sql = "select WID,UID,wtype,wname,address_city,totalcapacity,usingcapacity,charge,cost " +
+                    "from warehouse " +
+                    "where wtype = ?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, wtype);
             ResultSet rs = pstmt.executeQuery();
             warehouseVOList = new ArrayList<WarehouseVO>();
 
