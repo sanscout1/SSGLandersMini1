@@ -1,6 +1,7 @@
 package DAO;
 
 import VO.ReleaseVO;
+import VO.UserVO;
 import VO.WaybillVO;
 
 import java.sql.*;
@@ -12,7 +13,6 @@ public class WaybillDao {
 
   public void connectDB() {
     try {
-      System.out.println("실행됨");
       //JDBC Driver 등록
       Class.forName("com.mysql.cj.jdbc.Driver");
       conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/ssglandersretail?serverTimezone=Asia/Seoul", "root", "1111");
@@ -32,15 +32,20 @@ public class WaybillDao {
   }
 
   // 운송장 내역 출력
-  public List<WaybillVO> waybillListSelect(){
+  public List<WaybillVO> waybillListSelect(UserVO userVO){
     List<WaybillVO> waybillVOList = new ArrayList<>();
-
+    PreparedStatement pstmt;
     try {
-//      Class.forName("com.mysql.cj.jdbc.Driver");
-//      conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/ssglandersretail?serverTimezone=Asia/Seoul", "root", "1111");
+      connectDB();
 
-      String sql = new StringBuilder().append("SELECT * FROM waybill").toString();
-      PreparedStatement pstmt = conn.prepareStatement(sql);
+      if(userVO.getUserType() == 1){
+        String sql = new StringBuilder().append("SELECT * FROM waybill").toString();
+        pstmt = conn.prepareStatement(sql);
+      }else {
+        String sql = new StringBuilder().append("SELECT * FROM ssglandersretail.waybill w join ssglandersretail.release r on w.way_id = r.WID WHERE r.UID = ?").toString();
+        pstmt = conn.prepareStatement(sql);
+        pstmt.setInt(1, userVO.getUserID());
+      }
 
       ResultSet rs = pstmt.executeQuery();
       while (rs.next()) {
@@ -65,17 +70,20 @@ public class WaybillDao {
 
     } catch (Exception e) {
       e.printStackTrace();
+    }finally {
+      closeDB();
     }
     return waybillVOList;
   }
 
   // 운송장 추가
-  public void waybillInsert(WaybillVO waybillVO){
+  public int waybillInsert(WaybillVO waybillVO){
+    int max = 0;
     try {
+      connectDB();
       String sql = "INSERT INTO waybill " +
-              "(dep_name,dep_city,dep_city_num,arr_city, arr_city_num,arr_name,way_num)" +
-              "values(?,?,?,?,?,?,?)";
-
+                   "(dep_name,dep_city,dep_city_num,arr_city, arr_city_num,arr_name,way_num)" +
+                   "values(?,?,?,?,?,?,?)";
       PreparedStatement pstmt = conn.prepareStatement(sql);
       pstmt.setString(1, waybillVO.getDep_name());
       pstmt.setString(2, waybillVO.getDep_city());
@@ -85,15 +93,27 @@ public class WaybillDao {
       pstmt.setString(6, waybillVO.getArr_name());
       pstmt.setInt(7, waybillVO.getWay_num());
 
-
       int rows = pstmt.executeUpdate();
-      System.out.println("저장된 행 수: " + rows);
+
+
+      // 가장큰 way_id 가져오기
+      System.out.println("이부분은 왔나?");
+      sql = "select way_id from waybill order by way_id DESC LIMIT 1";
+      pstmt = conn.prepareStatement(sql);
+      ResultSet rs = pstmt.executeQuery();
+
+      if(rs.next()){
+        max = rs.getInt("way_id");
+      }
 
       //PreparedStatement 닫기
       pstmt.close();
     } catch (SQLException e) {
       e.printStackTrace();
+    }finally {
+      closeDB();
     }
+    return max;
   }
 
   // 운송장 수정
@@ -122,7 +142,6 @@ public class WaybillDao {
       pstmt.setInt(8, searchNum);
 
       int rows = pstmt.executeUpdate();
-      System.out.println("저장된 행 수: " + rows);
 
       //PreparedStatement 닫기
       pstmt.close();

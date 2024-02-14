@@ -13,7 +13,6 @@ public class DispatchDao {
 
   public void connectDB() {
     try {
-      System.out.println("실행됨");
       //JDBC Driver 등록
       Class.forName("com.mysql.cj.jdbc.Driver");
       conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/ssglandersretail?serverTimezone=Asia/Seoul", "root", "1111");
@@ -32,17 +31,17 @@ public class DispatchDao {
     }
   }
 
+
+
   // 배차 입력
-  public void dispatchInsert(DispatchVO dispatchVO) {
-
+  public int dispatchInsert(DispatchVO dispatchVO) {
+    int max = 0;
     try {
-//      Class.forName("com.mysql.cj.jdbc.Driver");
-//      conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/ssglandersretail?serverTimezone=Asia/Seoul", "root", "1111");
-
+      connectDB();
 
       String sql = "INSERT INTO dispatch " +
-              "(veh_id,dis_date,approval)" +
-              "values(?,?,?)";
+                   "(veh_id,dis_date,approval)" +
+                   "values(?,?,?)";
 
       PreparedStatement pstmt = conn.prepareStatement(sql);
       pstmt.setInt(1, dispatchVO.getVehicle());
@@ -51,13 +50,25 @@ public class DispatchDao {
 
 
       int rows = pstmt.executeUpdate();
-      System.out.println("저장된 행 수: " + rows);
+
+      // 가장큰 d_id 가져오기
+      sql = "select Did from dispatch order by Did DESC LIMIT 1";
+      pstmt = conn.prepareStatement(sql);
+      ResultSet rs = pstmt.executeQuery();
+
+      if (rs.next()) {
+        max = rs.getInt("Did");
+      }
 
       //PreparedStatement 닫기
       pstmt.close();
     } catch (Exception e) {
       e.printStackTrace();
     }
+    finally {
+      closeDB();
+    }
+    return max;
   }
 
   // 배차 리스트 출력
@@ -95,6 +106,8 @@ public class DispatchDao {
   // 배차 정보 수정
   public void dispatchUpdate(int searchNum, int vehicleNum) {
     try {
+      connectDB();
+
       String sql = new StringBuilder().append("UPDATE dispatch SET ")
               .append("veh_id=? ")
               .append("where Did=?")
@@ -105,12 +118,13 @@ public class DispatchDao {
       pstmt.setInt(2, searchNum);
 
       int rows = pstmt.executeUpdate();
-      System.out.println("저장된 행 수: " + rows);
 
       //PreparedStatement 닫기
       pstmt.close();
     } catch (Exception e) {
       e.printStackTrace();
+    }finally {
+      closeDB();
     }
   }
 
@@ -127,7 +141,6 @@ public class DispatchDao {
       pstmt.setInt(2, deleteNum);
 
       int rows = pstmt.executeUpdate();
-      System.out.println("저장된 행 수: " + rows);
 
       //PreparedStatement 닫기
       pstmt.close();
