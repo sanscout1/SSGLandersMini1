@@ -8,28 +8,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WaybillDao {
-  public Connection conn = null;
+public class WaybillDao extends DBconnector{
 
-  public void connectDB() {
-    try {
-      //JDBC Driver 등록
-      Class.forName("com.mysql.cj.jdbc.Driver");
-      conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/ssglandersretail?serverTimezone=Asia/Seoul", "root", "1111");
-
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
-  public void closeDB() {
-    try {
-      if (conn != null) {
-        conn.close();
-      }
-    } catch (SQLException e) {
-    }
-  }
 
   // 운송장 내역 출력
   public List<WaybillVO> waybillListSelect(UserVO userVO){

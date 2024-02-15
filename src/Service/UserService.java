@@ -2,6 +2,7 @@ package Service;
 
 import API.IUserService;
 import DAO.UserDao;
+import Exception.UserException.UserException;
 import VO.UserVO;
 import Exception.UserException.UserExceptionList;
 
@@ -33,11 +34,13 @@ public class UserService implements IUserService {
     @Override
     public UserVO memberLogin() {
         System.out.println("***로그인 목록입니다***");
-        System.out.println("1. 로그인 | 2. 회원가입 | 3. 아이디 찾기 | 4. 비밀번호 찾기");
+        System.out.println("1. 로그인 | 2. 회원가입 | 3. 아이디 찾기 | 4. 비밀번호 찾기 5. 종료");
         System.out.print("메뉴를 선택해주세요 : ");
 
         try {
+
             int choice = Integer.parseInt(reader.readLine());
+            UserExceptionList.validateMenusSelection(choice);
 
             switch (choice) {
                 case 1:
@@ -55,14 +58,18 @@ public class UserService implements IUserService {
                     findPw();
                     break;
 
+                case 5 : System.exit(0);
                 default:
                     System.out.println("잘못된 메뉴 선택입니다.");
-                    memberLogin();
+                    //memberLogin();
             }
+        } catch (UserException ue) {
+            //memberLogin();
         } catch (Exception e) {
-            memberLogin();
+            System.out.println("잘못된 입력입니다. 다시 시도해주세요.");
+            //memberLogin();
         }
-        return null;
+        return myUser;
     }
 
     //1. 로그인
@@ -86,15 +93,13 @@ public class UserService implements IUserService {
                 if (myUser.getUserType() == 1) {
                     System.out.println("관리자로 로그인되었습니다.");
                     return myUser;
-                //    manageMember();
                 } else if (myUser.getUserType() == 2) {
                     System.out.println("회원으로 로그인되었습니다.");
                     return myUser;
-                //    checkUser();
                 }
             } else if (loggedUser != null && !loggedUser.isApproval()) {
                 System.out.println("승인 대기 중입니다. 로그인이 제한되었습니다.");
-                memberLogin();
+                //memberLogin();
             } else {
                 UserExceptionList.invalidLogin();
                 System.out.println("1. 아이디 찾기 | 2. 비밀번호 찾기");
@@ -106,7 +111,7 @@ public class UserService implements IUserService {
                 }
             }
         } catch (Exception e) {
-            memberLogin();
+            //memberLogin();
         }
         return myUser;
     }
@@ -180,10 +185,10 @@ public class UserService implements IUserService {
 
             if (foundID != null) {
                 System.out.println("일치하는 아이디는 " + foundID + "입니다.");
-                memberLogin();
+                //memberLogin();
             } else {
                 System.out.println("일치하는 아이디가 없습니다.");
-                memberLogin();
+               // memberLogin();
             }
         } catch (Exception e) {
             memberLogin();
@@ -201,10 +206,10 @@ public class UserService implements IUserService {
 
             if (foundPW != null) {
                 System.out.println("일치하는 비밀번호는 " + foundPW + "입니다.");
-                memberLogin();
+               // memberLogin();
             } else {
                 System.out.println("일치하는 비밀번호가 없습니다.");
-                memberLogin();
+              //  memberLogin();
             }
         } catch (Exception e) {
             memberLogin();
@@ -215,12 +220,13 @@ public class UserService implements IUserService {
     @Override
     public void manageMember() {
         System.out.println("***관리자 목록입니다***");
-        System.out.println("1. 조회 | 2. 수정 | 3. 삭제 | 4. 로그아웃");
+        System.out.println("1. 조회 | 2. 수정 | 3. 삭제 | 4. 나가기");
         System.out.print("메뉴를 선택해주세요 : ");
 
         try {
-            int choice = Integer.parseInt(reader.readLine());
 
+            int choice = Integer.parseInt(reader.readLine());
+            UserExceptionList.validateMenusSelection(choice);
             switch (choice) {
                 case 1:
                     memberSearch();
@@ -235,16 +241,19 @@ public class UserService implements IUserService {
                     break;
 
                 case 4:
-                    logoutId();
                     break;
+                //case 5:  return 1;
 
                 default:
                     System.out.println("잘못된 메뉴 선택입니다.");
                     manageMember();
             }
+        } catch (UserException ue){
+            manageMember();
         } catch (Exception e) {
             manageMember();
         }
+        //return 0;
     }
 
     //1. 조회
@@ -253,13 +262,20 @@ public class UserService implements IUserService {
         System.out.print("조회할 메뉴를 선택해주세요: ");
 
         try {
-            int searchChoice = Integer.parseInt(reader.readLine());
+            String tmp = reader.readLine();
+            UserExceptionList.validateInteger(tmp);
+            int searchChoice = Integer.parseInt(tmp);
+            UserExceptionList.validateNumberSelection(searchChoice);
 
             switch (searchChoice) {
                 case 1:
                     System.out.println("1. 회원 상세보기 조회 | 2. 회원 전체 조회 | 3. 승인 대기자 조회");
                     System.out.print("서브 메뉴를 선택해주세요 : ");
-                    int subChoice = Integer.parseInt(reader.readLine());
+
+                    tmp = reader.readLine();
+                    UserExceptionList.validateInteger(tmp);
+                    int subChoice = Integer.parseInt(tmp);
+                    UserExceptionList.validateNumbersSelection(subChoice);
 
                     switch (subChoice) {
                         case 1:
@@ -288,6 +304,8 @@ public class UserService implements IUserService {
                     System.out.println("잘못된 메뉴 선택입니다.");
                     memberSearch();
             }
+        } catch (UserException ue){
+            memberSearch();
         } catch (Exception e) {
             memberSearch();
         }
@@ -364,7 +382,7 @@ public class UserService implements IUserService {
             }
         } catch (Exception e) {
             System.out.println("승인 대기자 목록을 가져오는 도중 오류가 발생했습니다.");
-            e.printStackTrace();
+            //e.printStackTrace();
         } finally {
             manageMember();
         }
@@ -393,12 +411,14 @@ public class UserService implements IUserService {
 
     //2. 수정
     private void manageUpdate() {
-        System.out.println("1. 회원 정보 수정 | 2. 쇼핑몰 사업자 정보 수정");
+        System.out.println("1. 회원 정보 수정 | 2. 쇼핑몰 사업자 정보 수정 | 3. 나가기");
         System.out.print("수정할 메뉴를 선택해주세요: ");
 
         try {
-            int updateChoice = Integer.parseInt(reader.readLine());
-            ;
+            String tmp = reader.readLine();
+            UserExceptionList.validateInteger(tmp);
+            int updateChoice = Integer.parseInt(tmp);
+            UserExceptionList.validateNumbersSelection(updateChoice);
 
             switch (updateChoice) {
                 case 1:
@@ -409,10 +429,10 @@ public class UserService implements IUserService {
                     taxIdUpdate();
                     break;
 
-                default:
-                    System.out.println("잘못된 메뉴 선택입니다.");
-                    manageUpdate();
+                default: manageMember();
             }
+        } catch (UserException ue){
+            manageUpdate();
         } catch (Exception e) {
             manageUpdate();
         }
@@ -424,26 +444,44 @@ public class UserService implements IUserService {
             System.out.print("수정이 필요한 아이디를 입력해주세요: ");
             String ID = reader.readLine();
 
-            System.out.println("수정할 회원의 정보를 입력해주세요.");
-            System.out.print("회원 유형 : (1. 관리자 | 2. 회원)");
-            int utype = Integer.parseInt(reader.readLine());
+            UserVO currentUser = userDAO.getUserId(ID);
 
-            System.out.print("비밀번호 : ");
+            if (currentUser == null) {
+                System.out.println("해당 아이디의 회원이 존재하지 않습니다.");
+                return;
+            }
+            System.out.print("회원 유형 : (1. 관리자 | 2. 회원) [" + currentUser.getUserType() + "]: ");
+            String userTypeInput = reader.readLine();
+            UserExceptionList.validateUserType(userTypeInput);
+            int utype = userTypeInput.isEmpty() ? currentUser.getUserType() : Integer.parseInt(userTypeInput);
+
+            System.out.print("비밀번호 [" + currentUser.getPassword() + "]: ");
             String password = reader.readLine();
+            if (password.isEmpty()) {
+                password = currentUser.getPassword();
+            }
 
-            System.out.print("이름 : ");
+            System.out.print("이름 [" + currentUser.getUserName() + "]: ");
             String userName = reader.readLine();
+            if (userName.isEmpty()) {
+                userName = currentUser.getUserName();
+            }
 
-            System.out.print("거주 도시 : ");
+            System.out.print("거주 도시 [" + currentUser.getAddressCity() + "]: ");
             String addressCity = reader.readLine();
+            if (addressCity.isEmpty()) {
+                addressCity = currentUser.getAddressCity();
+            }
 
-            System.out.print("거주 번지 : ");
-            int addressNum = Integer.parseInt(reader.readLine());
+            System.out.print("거주 번지 [" + currentUser.getAddressNum() + "]: ");
+            String addressNumInput = reader.readLine();
+            UserExceptionList.validateAddressNum(addressNumInput);
+            int addressNum = addressNumInput.isEmpty() ? currentUser.getAddressNum() : Integer.parseInt(addressNumInput);
 
-            // true 쳐야 1 들어가는거 체크
-            System.out.print("승인여부 : ");
-            boolean approval = Boolean.parseBoolean(reader.readLine());
-
+            System.out.print("승인여부 [" + currentUser.isApproval() + "]: ");
+            String approvalInput = reader.readLine();
+            UserExceptionList.validateApproval(approvalInput);
+            boolean approval = approvalInput.isEmpty() ? currentUser.isApproval() : Boolean.parseBoolean(approvalInput);
             boolean success = userDAO.updateUser(ID, utype, password, userName, addressCity, addressNum, approval);
 
             if (success) {
@@ -451,9 +489,10 @@ public class UserService implements IUserService {
             } else {
                 System.out.println("회원정보 수정에 실패하였습니다.");
             }
+            manageUpdate();
+        } catch (UserException ue) {
+            memberUpdate();
         } catch (Exception e) {
-            manageMember();
-        } finally {
             manageMember();
         }
     }
@@ -464,8 +503,18 @@ public class UserService implements IUserService {
             System.out.print("쇼핑몰 사업자 정보 수정이 필요한 아이디를 입력해주세요 :");
             String ID = reader.readLine();
 
-            System.out.print("수정할 사업자 등록 번호를 입력해주세요 : ");
+            UserVO currentUser = userDAO.getUserId(ID);
+
+            if (currentUser == null) {
+                System.out.println("해당 아이디의 회원이 존재하지 않습니다.");
+                manageMember();
+            }
+
+            System.out.print("수정할 사업자 등록 번호를 입력해주세요 [" + currentUser.getTaxID() + "]: ");
             String taxID = reader.readLine();
+            if (taxID.isEmpty()) {
+                taxID = currentUser.getTaxID();
+            }
 
             boolean success = userDAO.taxIdUpdate(ID, taxID);
 
@@ -493,30 +542,27 @@ public class UserService implements IUserService {
             } else {
                 System.out.println("회원 삭제에 실패하였습니다.");
             }
+            manageMember();
         } catch (Exception e) {
-            manageMember();
-        } finally {
-            manageMember();
         }
     }
 
     //4. 로그아웃
-    private void logoutId() {
+    public void logoutId() {
         this.myUser = null;
         System.out.println("로그아웃 되었습니다.");
-        memberLogin();
     }
 
     // 회원 목록 메인
-    @Override
     public void checkUser() {
         System.out.println("***회원 목록입니다***");
-        System.out.println("1. 내 정보 조회 | 2. 내 정보 수정 | 3. 탈퇴 | 4. 로그아웃 | 5. 메뉴");
+        System.out.println("1. 내 정보 조회 | 2. 내 정보 수정 | 3. 탈퇴 | 4. 로그아웃");
         System.out.print("메뉴를 선택해주세요 : ");
 
         try {
-            int choice = Integer.parseInt(reader.readLine());
 
+            int choice = Integer.parseInt(reader.readLine());
+            UserExceptionList.validateMenusSelection(choice);
 
             switch (choice) {
                 case 1:
@@ -534,13 +580,13 @@ public class UserService implements IUserService {
                 case 4:
                     logoutId();
                     break;
-                case 5:
-                    break;
 
                 default:
                     System.out.println("잘못된 메뉴 선택입니다.");
                     checkUser();
             }
+        } catch(UserException ue){
+            checkUser();
         } catch (Exception e) {
             checkUser();
         }
@@ -561,6 +607,7 @@ public class UserService implements IUserService {
 
         try {
             int updateChoice = Integer.parseInt(reader.readLine());
+            UserExceptionList.validateNumberSelection(updateChoice);
 
             switch (updateChoice) {
                 case 1:
@@ -573,10 +620,12 @@ public class UserService implements IUserService {
 
                 default:
                     System.out.println("잘못된 메뉴 선택입니다.");
-                    manageUpdate();
+                    userUpdate();
             }
+        } catch (UserException ue){
+            userUpdate();
         } catch (Exception e) {
-            manageUpdate();
+            userUpdate();
         }
     }
 
@@ -586,17 +635,31 @@ public class UserService implements IUserService {
             System.out.println("회원 정보 수정을 시작합니다.");
 
             System.out.println("수정 할 정보를 입력해주세요.");
-            System.out.print("비밀번호 : ");
+
+            UserVO currentUser = userDAO.getUserId(myUser.getID());
+
+            System.out.print("비밀번호 [" + currentUser.getPassword() + "]: ");
             String password = reader.readLine();
+            if (password.isEmpty()) {
+                password = currentUser.getPassword();
+            }
 
-            System.out.print("이름 : ");
+            System.out.print("이름 [" + currentUser.getUserName() + "]: ");
             String userName = reader.readLine();
+            if (userName.isEmpty()) {
+                userName = currentUser.getUserName();
+            }
 
-            System.out.print("거주 도시 : ");
+            System.out.print("거주 도시 [" + currentUser.getAddressCity() + "]: ");
             String addressCity = reader.readLine();
+            if (addressCity.isEmpty()) {
+                addressCity = currentUser.getAddressCity();
+            }
 
-            System.out.print("거주 번지 : ");
-            int addressNum = Integer.parseInt(reader.readLine());
+            System.out.print("거주 번지 [" + currentUser.getAddressNum() + "]: ");
+            String addressNumInput = reader.readLine();
+            UserExceptionList.validateAddressNum(addressNumInput);
+            int addressNum = addressNumInput.isEmpty() ? currentUser.getAddressNum() : Integer.parseInt(addressNumInput);
 
             boolean success = userDAO.myInfoUpdate(myUser.getID(), password, userName, addressCity, addressNum);
 
@@ -615,11 +678,24 @@ public class UserService implements IUserService {
     private void mytaxIdUpdate() {
         try {
             System.out.println("쇼핑몰 사업자 정보 수정을 시작합니다.");
+
+            UserVO currentUser = userDAO.getUserId(myUser.getID());
+
             System.out.print("비밀번호를 입력해주세요 : ");
             String password = reader.readLine();
 
-            System.out.print("수정할 사업자 등록 번호를 입력해주세요 : ");
+            // 비밀번호 검증
+            if (!password.equals(currentUser.getPassword())) {
+                System.out.println("비밀번호가 일치하지 않습니다.");
+                checkUser();
+                return;
+            }
+
+            System.out.print("수정할 사업자 등록 번호를 입력해주세요 [" + currentUser.getTaxID() + "]: ");
             String taxID = reader.readLine();
+            if (taxID.isEmpty()) {
+                taxID = currentUser.getTaxID();
+            }
 
             boolean success = userDAO.mytaxIdUpdate(password, taxID);
 
@@ -647,8 +723,11 @@ public class UserService implements IUserService {
                 logoutId();
             } else {
                 System.out.println("회원 탈퇴에 실패하였습니다.");
+                UserExceptionList.failedToDeleteUser();
                 checkUser();
             }
+        } catch (UserException ue){
+            checkUser();
         } catch (Exception e) {
             logoutId();
         }

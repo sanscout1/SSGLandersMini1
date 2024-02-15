@@ -7,31 +7,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DispatchDao {
-
-  public Connection conn = null;
-
-  public void connectDB() {
-    try {
-      //JDBC Driver 등록
-      Class.forName("com.mysql.cj.jdbc.Driver");
-      conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/ssglandersretail?serverTimezone=Asia/Seoul", "root", "1111");
-
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
-  public void closeDB() {
-    try {
-      if (conn != null) {
-        conn.close();
-      }
-    } catch (SQLException e) {
-    }
-  }
-
-
+public class DispatchDao extends DBconnector {
 
   // 배차 입력
   public int dispatchInsert(DispatchVO dispatchVO) {
