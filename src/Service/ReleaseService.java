@@ -1,5 +1,6 @@
 package Service;
 
+import API.IReleaseService;
 import DAO.ReleaseDao;
 import VO.ReleaseVO;
 import VO.UserVO;
@@ -11,9 +12,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Scanner;
 
-public class ReleaseService {
+public class ReleaseService implements IReleaseService {
 
   List<ReleaseVO> ReleaseRequest = new ArrayList<>();
   ReleaseDao releaseDao = new ReleaseDao();
@@ -22,8 +22,113 @@ public class ReleaseService {
   BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
 
 
+  public void printMenu(UserVO userVO){
+
+    int selectNum = 0;
+
+    if (userVO.getUserType() == 1) {   //관리자
+      try {
+        System.out.println("==출고 메뉴==");
+        System.out.println("1.출고요청 관리 | 2.출고관리 | 3.배차관리 | 4.운송장관리");
+        selectNum = Integer.parseInt(bf.readLine());
+        switch (selectNum) {
+          case 1 -> {
+            System.out.println("1.미승인 리스트보기 | 2.승인 및 취소하기 | 3.출고요청");
+            selectNum = Integer.parseInt(bf.readLine());
+            switch (selectNum) {
+              case 1 -> {
+                releaseApproveList();
+              }
+              case 2 -> {
+                releaseApprove();
+              }
+              case 3 -> {
+                releaseRequest(userVO);
+              }
+            }
+          }
+          case 2 -> {
+            System.out.println("1.출고리스트 보기 | 2.출고상품 검색");
+            selectNum = Integer.parseInt(bf.readLine());
+            switch (selectNum) {
+              case 1 -> {
+                releaseList(userVO);
+              }
+              case 2 -> {
+                releaseSearch(userVO);
+              }
+            }
+          }
+          case 3 -> {
+            System.out.println("1.배차등록 | 2.배차리스트 조회 | 3.배차정보 수정 | 4.배차 취소");
+            selectNum = Integer.parseInt(bf.readLine());
+            switch (selectNum) {
+              case 1 -> {
+                dispatchService.dispatchAdd();
+              }
+              case 2 -> {
+                dispatchService.dispatchList();
+              }
+              case 3 -> {
+                dispatchService.dispatchModify();
+              }
+              case 4 -> {
+                dispatchService.dispatchCancle();
+              }
+            }
+          }
+          case 4 -> {
+            System.out.println("1.운송장등록 | 2.운송장리스트 조회 | 3.운송장 수정");
+            selectNum = Integer.parseInt(bf.readLine());
+            switch (selectNum) {
+              case 1 -> {
+                waybillService.waybillAdd();
+              }
+              case 2 -> {
+                waybillService.waybillList(userVO);
+              }
+              case 3 -> {
+                waybillService.waybillModify();
+              }
+            }
+          }
+        }
+
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    // 일반유저
+    else {
+      try {
+        System.out.println("==출고 메뉴==");
+        System.out.println("1.출고요청 | 2.출고리스트 조회 | 3.출고상품 검색 | 4.운송장 조회");
+        selectNum = Integer.parseInt(bf.readLine());
+        switch (selectNum) {
+          case 1 -> {
+            releaseRequest(userVO);
+          }
+          case 2 -> {
+            releaseList(userVO);
+          }
+          case 3 -> {
+            releaseSearch(userVO);
+          }
+          case 4 ->{
+            waybillService.waybillList(userVO);
+          }
+        }
+
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+
+
+    }
+    printMenu(userVO);
+  }
   // 출고 요청하기 / 둘다가능
-  public void releaseRequest() throws ParseException {
+  public void releaseRequest(UserVO userVO)  {
 
     int releaseQuentity = 0;
     int userId = 0;
@@ -35,8 +140,8 @@ public class ReleaseService {
       System.out.println("==출고 요청합니다==");
       System.out.println("==수량을 입력하세요==");
       releaseQuentity = Integer.parseInt(bf.readLine());
-      System.out.println("==아이디를 입력하세요==");
-      Integer.parseInt(bf.readLine());
+      //id
+      userId = userVO.getUserID();
       System.out.println("==창고번호 입력하세요==");
       releaseWarehouseId = Integer.parseInt(bf.readLine());
       System.out.println("==출고할 상품ID 입력하세요==");
@@ -44,8 +149,6 @@ public class ReleaseService {
     } catch (IOException e) {
       e.printStackTrace();
     }
-
-
     ReleaseVO releaseVO = new ReleaseVO(releaseDate, releaseQuentity, 0, 0, 1, 1, userId, releaseWarehouseId, releaseProductId);
     releaseDao.releaseRequestInsert(releaseVO); // insert할 객체 보냄
   }

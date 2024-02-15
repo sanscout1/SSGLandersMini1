@@ -8,32 +8,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReleaseDao {
-  private Connection conn = null;
+public class ReleaseDao extends DBconnector{
 
-  private void connectDB() {
-    try {
-      //JDBC Driver 등록
-      Class.forName("com.mysql.cj.jdbc.Driver");
-
-      conn = DriverManager.getConnection(
-              "jdbc:mysql://localhost:3306/ssglandersretail?serverTimezone=Asia/Seoul",
-              "root",
-              "1111"
-      );
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
-  private void closeDB() {
-    try {
-      if (conn != null) {
-        conn.close();
-      }
-    } catch (SQLException e) {
-    }
-  }
 
   public ReleaseDao() {
 //    createTrigger();
@@ -245,7 +221,7 @@ public class ReleaseDao {
         String sql = new StringBuilder().append("select * from ssglandersretail.release r join ssglandersretail.product p on r.pid = p.pid WHERE p.pname like ? AND r.UID = ?").toString();
         pstmt = conn.prepareStatement(sql);
         pstmt.setString(1, "%" + product + "%");
-        pstmt.setString(2, userVO.getID());
+        pstmt.setInt(2, userVO.getUserID());
       }
 
       ResultSet rs = pstmt.executeQuery();
@@ -266,8 +242,6 @@ public class ReleaseDao {
         releaseVOList.add(releaseVO);
 
       }
-      for (ReleaseVO releaseVO : releaseVOList) System.out.println(releaseVO.toString());
-
       rs.close();
       pstmt.close();
 

@@ -120,35 +120,41 @@ public class FinanceDao extends DBconnector {
         return financeVOList;
     }
 
-    public void financeUpdate(int amount,int recid,int ftype){
+    public void financeUpdate(int amount,int recid,int ftype,int WID){
         try {
             connectDB();
-            String sql = "update finance set amount =? where rec_id =? and ftype =?";
+            String sql = "update finance natural join receipt set amount =? where rec_id =? and ftype =? and WID = ?";
 
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1,amount);
             pstmt.setInt(2,recid);
             pstmt.setInt(3,ftype);
-            pstmt.executeUpdate();
-            System.out.println("업데이트 완료");
+            pstmt.setInt(4,WID);
+            int ack =pstmt.executeUpdate();
+            if(ack > 0) {System.out.println("수정 완료");}
+            else {System.out.println("수정 할 내역이 없습니다.");}
             pstmt.close();
         } catch (Exception e) {
         } finally {
             closeDB();
         }
     }
-    public void financeDelete(int recid,int ftype){
+    public void financeDelete(int recid,int ftype,int WID){
         try {
             connectDB();
-            String sql = "delete from finance where rec_id =? and ftype = ? ";
+            String sql = "DELETE finance FROM finance JOIN receipt ON finance.rec_id = receipt.rec_id WHERE finance.rec_id = ? AND finance.ftype = ? AND receipt.WID = ?";
 
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1,recid);
             pstmt.setInt(2,ftype);
-            pstmt.executeUpdate();
-            System.out.println("삭제 완료");
+            pstmt.setInt(3,WID);
+            int ack = pstmt.executeUpdate();
+            if(ack > 0) {System.out.println("삭제 완료");}
+            else {System.out.println("삭제 할 내역이 없습니다.");}
+
             pstmt.close();
         } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             closeDB();
         }
