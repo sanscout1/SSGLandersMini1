@@ -556,7 +556,7 @@ public class UserService implements IUserService {
     // 회원 목록 메인
     public void checkUser() {
         System.out.println("***회원 목록입니다***");
-        System.out.println("1. 내 정보 조회 | 2. 내 정보 수정 | 3. 탈퇴 | 4. 로그아웃");
+        System.out.println("1. 내 정보 조회 | 2. 내 정보 수정 | 3. 탈퇴 | 4. 나가기");
         System.out.print("메뉴를 선택해주세요 : ");
 
         try {
@@ -578,7 +578,6 @@ public class UserService implements IUserService {
                     break;
 
                 case 4:
-                    logoutId();
                     break;
 
                 default:
