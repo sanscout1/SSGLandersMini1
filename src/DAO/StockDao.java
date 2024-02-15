@@ -20,8 +20,8 @@ public class StockDao extends DBconnector{
         return instance;
     }
     private StockDao(){
-        createAdminStockRead();
-        createUserStockRead();
+ //       createAdminStockRead();
+ //       createUserStockRead();
     }
 
 
