@@ -8,12 +8,11 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReleaseDao extends DBconnector{
-
+public class ReleaseDao extends DBconnector {
 
   public ReleaseDao() {
-//    createTrigger();
-//    createTriggerWarehouse();
+//    createTriggerStock();
+//   createTriggerWarehouse();
   }
 
   //회원용 read는 입고 - 출고로 재고 확인 가능하게 만들자.
@@ -164,7 +163,6 @@ public class ReleaseDao extends DBconnector{
       pstmt.setInt(3, max);
 
       int rows = pstmt.executeUpdate();
-      System.out.println("저장된 행 수: " + rows);
 
       //PreparedStatement 닫기
       pstmt.close();
@@ -185,7 +183,7 @@ public class ReleaseDao extends DBconnector{
                    "values(?,?,?,?,?,?,?,?,?)";
 
       PreparedStatement pstmt = conn.prepareStatement(sql);
-      pstmt.setTimestamp(1, new java.sql.Timestamp(release.getDate().getTime()));
+      pstmt.setTimestamp(1, new Timestamp(release.getDate().getTime()));
       pstmt.setInt(2, release.getQuentity());
       pstmt.setInt(3, release.getState()); // state
       pstmt.setInt(4, release.getApproval()); // approval
@@ -196,11 +194,15 @@ public class ReleaseDao extends DBconnector{
       pstmt.setInt(9, release.getProductId()); //
 
       int rows = pstmt.executeUpdate();
+//      if(rows == 0){
+//        System.out.println("없는 창고또는 상품ID입니다.");
+//      }
 
       //PreparedStatement 닫기
       pstmt.close();
     } catch (SQLException e) {
-      e.printStackTrace();
+      System.out.println("*없는 창고 또는 상품ID입니다.*");
+
     } finally {
       closeDB();
     }
@@ -225,6 +227,8 @@ public class ReleaseDao extends DBconnector{
       }
 
       ResultSet rs = pstmt.executeQuery();
+
+
       while (rs.next()) {
 
         ReleaseVO releaseVO = new ReleaseVO();
@@ -285,7 +289,6 @@ public class ReleaseDao extends DBconnector{
         releaseVOList.add(releaseVO);
 
       }
-      for (ReleaseVO releaseVO : releaseVOList) System.out.println(releaseVO.toString());
 
       rs.close();
       pstmt.close();
@@ -301,7 +304,7 @@ public class ReleaseDao extends DBconnector{
   }
 
   // 승인내용 수정
-  public void releaseApproveUpdate(int searchNum, int approvalNum) {
+  public boolean releaseApproveUpdate(int searchNum, int approvalNum) {
 
     try {
       connectDB();
@@ -315,6 +318,10 @@ public class ReleaseDao extends DBconnector{
       pstmt.setInt(2, searchNum);
 
       int rows = pstmt.executeUpdate();
+      if(rows == 0){
+        System.out.println("*해당하는 출고가 없습니다.*");
+        return false;
+      }
 
       // 출고에서 수량줄이기 프로시저
       CallableStatement cstmt = conn.prepareCall("{call your_stock_trigger_procedure(?)}");
@@ -337,6 +344,7 @@ public class ReleaseDao extends DBconnector{
     } finally {
       closeDB();
     }
+    return true;
   }
 
   // 출고 id로 출고 물품 출력

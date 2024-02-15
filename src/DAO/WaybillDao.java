@@ -1,5 +1,6 @@
 package DAO;
 
+import Service.ReleaseService;
 import VO.ReleaseVO;
 import VO.UserVO;
 import VO.WaybillVO;
@@ -9,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WaybillDao extends DBconnector{
-
 
   // 운송장 내역 출력
   public List<WaybillVO> waybillListSelect(UserVO userVO){
@@ -57,7 +57,7 @@ public class WaybillDao extends DBconnector{
   }
 
   // 운송장 추가
-  public int waybillInsert(WaybillVO waybillVO){
+  public void waybillInsert(WaybillVO waybillVO){
     int max = 0;
     try {
       connectDB();
@@ -77,7 +77,6 @@ public class WaybillDao extends DBconnector{
 
 
       // 가장큰 way_id 가져오기
-      System.out.println("이부분은 왔나?");
       sql = "select way_id from waybill order by way_id DESC LIMIT 1";
       pstmt = conn.prepareStatement(sql);
       ResultSet rs = pstmt.executeQuery();
@@ -86,6 +85,7 @@ public class WaybillDao extends DBconnector{
         max = rs.getInt("way_id");
       }
 
+      ReleaseService.waynum = max;
       //PreparedStatement 닫기
       pstmt.close();
     } catch (SQLException e) {
@@ -93,13 +93,13 @@ public class WaybillDao extends DBconnector{
     }finally {
       closeDB();
     }
-    return max;
+//    return max;
   }
 
   // 운송장 수정
-  public void waybillUpdate(int searchNum, WaybillVO waybillVO){
+  public boolean waybillUpdate(int searchNum, WaybillVO waybillVO){
     try {
-
+      connectDB();
       String sql = new StringBuilder().append("UPDATE waybill SET ")
               .append("dep_name=? ,")
               .append("dep_city=? ,")
@@ -122,12 +122,19 @@ public class WaybillDao extends DBconnector{
       pstmt.setInt(8, searchNum);
 
       int rows = pstmt.executeUpdate();
+      if(rows == 0){
+        System.out.println("*해당하는 운송장번호가 없습니다*");
+        return false;
+      }
 
       //PreparedStatement 닫기
       pstmt.close();
     } catch (Exception e) {
       e.printStackTrace();
+    }finally {
+      closeDB();
     }
+    return true;
   }
 
   // 운송장 한개 출력??

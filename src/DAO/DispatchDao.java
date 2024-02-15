@@ -21,11 +21,11 @@ public class DispatchDao extends DBconnector {
 
       PreparedStatement pstmt = conn.prepareStatement(sql);
       pstmt.setInt(1, dispatchVO.getVehicle());
-      pstmt.setTimestamp(2, new java.sql.Timestamp(dispatchVO.getDate().getTime()));
-      pstmt.setInt(3, 0);
-
+      pstmt.setTimestamp(2, new Timestamp(dispatchVO.getDate().getTime()));
+      pstmt.setInt(3, 1);
 
       int rows = pstmt.executeUpdate();
+
 
       // 가장큰 d_id 가져오기
       sql = "select Did from dispatch order by Did DESC LIMIT 1";
@@ -39,7 +39,7 @@ public class DispatchDao extends DBconnector {
       //PreparedStatement 닫기
       pstmt.close();
     } catch (Exception e) {
-      e.printStackTrace();
+      System.out.println();
     }
     finally {
       closeDB();
@@ -53,9 +53,7 @@ public class DispatchDao extends DBconnector {
     List<DispatchVO> dispatchVOList = new ArrayList<>();
 
     try {
-      Class.forName("com.mysql.cj.jdbc.Driver");
-      conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/ssglandersretail?serverTimezone=Asia/Seoul", "root", "1111");
-
+      connectDB();
       String sql = new StringBuilder().append("SELECT * FROM dispatch").toString();
       PreparedStatement pstmt = conn.prepareStatement(sql);
 
@@ -72,6 +70,7 @@ public class DispatchDao extends DBconnector {
       }
       rs.close();
       pstmt.close();
+      closeDB();
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -80,7 +79,7 @@ public class DispatchDao extends DBconnector {
   }
 
   // 배차 정보 수정
-  public void dispatchUpdate(int searchNum, int vehicleNum) {
+  public boolean dispatchUpdate(int searchNum, int vehicleNum) {
     try {
       connectDB();
 
@@ -94,19 +93,25 @@ public class DispatchDao extends DBconnector {
       pstmt.setInt(2, searchNum);
 
       int rows = pstmt.executeUpdate();
+      if(rows == 0){
+        System.out.println("*해당하는 배차번호가 없습니다*");
+        return false;
+      }
 
       //PreparedStatement 닫기
       pstmt.close();
     } catch (Exception e) {
-      e.printStackTrace();
+
     }finally {
       closeDB();
     }
+    return true;
   }
 
   // 선택한 번호 approval 0으로 변경
-  public void dispatchDelete(int deleteNum, int approvalNum) {
+  public boolean dispatchDelete(int deleteNum, int approvalNum) {
     try {
+      connectDB();
       String sql = new StringBuilder().append("UPDATE dispatch SET ")
               .append("approval=? ")
               .append("where Did=?")
@@ -117,12 +122,19 @@ public class DispatchDao extends DBconnector {
       pstmt.setInt(2, deleteNum);
 
       int rows = pstmt.executeUpdate();
+      if(rows == 0){
+        System.out.println("*해당하는 배차번호가 없습니다*");
+        return false;
+      }
 
       //PreparedStatement 닫기
       pstmt.close();
     } catch (Exception e) {
       e.printStackTrace();
+    }finally {
+      closeDB();
     }
+    return true;
   }
 
   // 선택한 번호 배차 출력
