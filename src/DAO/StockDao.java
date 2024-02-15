@@ -20,7 +20,7 @@ public class StockDao extends DBconnector{
         return instance;
     }
     private StockDao(){
- //       createAdminStockRead();
+//        createAdminStockRead();
  //       createUserStockRead();
     }
 
@@ -59,7 +59,7 @@ public class StockDao extends DBconnector{
                             -- Calculate total receipt quantity for the current product
                             SELECT COALESCE(SUM(p_quantity), 0) INTO total_receipt_quantity
                             FROM receipt
-                            WHERE UID = in_UID AND PID = cur_pid AND WID = cur_wid;
+                            WHERE UID = in_UID AND PID = cur_pid AND WID = cur_wid and approval = 1;
                                         
                             -- Calculate total release quantity for the current product
                             SELECT COALESCE(SUM(p_quantity), 0) INTO total_release_quantity

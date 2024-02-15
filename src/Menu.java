@@ -62,7 +62,7 @@ public class Menu {
                     menuAdminList(user);
                 }
                 case 5 -> {
-                    receiptService.receiptUserMenu(user);
+                    receiptService.receiptAdminMenu(user);
                     menuAdminList(user);
                 }
                 case 6 -> {
@@ -82,10 +82,11 @@ public class Menu {
 
     public void menuUserList(UserVO user) {
         try {
-            System.out.println("1.회원 관리 | 2. 창고 관리 | 3. 재고 관리 | 4. 입고 관리 | 5. 출고 관리");
+            System.out.println("1.회원 관리 | 2. 창고 관리 | 3. 재고 관리 | 4. 입고 관리 | 5. 출고 관리 | 6. 로그 아웃");
             switch (Integer.parseInt(reader.readLine())) {
                 case 1 -> {
                     userService.checkUser();
+                    menuUserList(user);
                 }
                 case 2 -> {
                     warehouseService.warehouseMenu(user);
@@ -103,6 +104,7 @@ public class Menu {
                     releaseService.printMenu(user);
                     menuUserList(user);
                 }
+                case 6 -> userService.logoutId();
                 default -> {
                     System.out.println("다시 입력해주세요");
                     menuUserList(user);
