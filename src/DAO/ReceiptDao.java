@@ -143,7 +143,7 @@ public class ReceiptDao extends DBconnector{
         catch (SQLException se) {
 //            se.printStackTrace();
             if (se.getSQLState().equals("45000")) {
-                se.printStackTrace();
+                //se.printStackTrace();
                 System.out.println("창고 용량이 초과 되어 입고 할 수 없습니다.");
             }
         }
