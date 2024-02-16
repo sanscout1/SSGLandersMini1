@@ -201,6 +201,7 @@ public class ReleaseDao extends DBconnector {
       //PreparedStatement 닫기
       pstmt.close();
     } catch (SQLException e) {
+      //e.printStackTrace();
       System.out.println("*없는 창고 또는 상품ID입니다.*");
 
     } finally {

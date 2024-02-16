@@ -31,70 +31,75 @@ public class ReleaseService implements IReleaseService {
     DispatchService dispatchService = new DispatchService();
     WaybillService waybillService = new WaybillService();
 
-    int selectNum = 0;
+    String selectNum;
 
     if (userVO.getUserType() == 1) {   //관리자
       try {
         System.out.println("==출고 메뉴==");
         System.out.println("1.출고요청 관리 | 2.출고관리 | 3.배차관리 | 4.운송장관리 | 5. 나가기");
-        selectNum = Integer.parseInt(bf.readLine());
+        selectNum = bf.readLine();
+        ReleaseExceptionList.validOverZeroNumber(selectNum);
         switch (selectNum) {
-          case 1 -> {
+          case "1" -> {
             System.out.println("1.미승인 리스트보기 | 2.승인 및 취소하기 | 3.출고요청");
-            selectNum = Integer.parseInt(bf.readLine());
+            selectNum = bf.readLine();
+            ReleaseExceptionList.validOverZeroNumber(selectNum);
             switch (selectNum) {
-              case 1 -> {
+              case "1" -> {
                 releaseService.releaseApproveList();
               }
-              case 2 -> {
+              case "2" -> {
                 releaseService.releaseApprove();
               }
-              case 3 -> {
+              case "3" -> {
                 releaseService.releaseRequest(userVO);
               }
             }printMenu(userVO);
           }
-          case 2 -> {
+          case "2" -> {
             System.out.println("1.출고리스트 보기 | 2.출고상품 검색");
-            selectNum = Integer.parseInt(bf.readLine());
+            selectNum = bf.readLine();
+            ReleaseExceptionList.validOverZeroNumber(selectNum);
             switch (selectNum) {
-              case 1 -> {
+              case "1" -> {
                 releaseService.releaseList(userVO);
               }
-              case 2 -> {
+              case "2" -> {
                 releaseService.releaseSearch(userVO);
               }
             }printMenu(userVO);
           }
-          case 3 -> {
+          case "3" -> {
             System.out.println("1.배차등록 | 2.배차리스트 조회 | 3.배차정보 수정 | 4.배차 취소");
-            selectNum = Integer.parseInt(bf.readLine());
+            selectNum = bf.readLine();
+            ReleaseExceptionList.validOverZeroNumber(selectNum);
             switch (selectNum) {
-              case 1 -> {
+              case "1" -> {
                 dispatchService.dispatchAdd();
               }
-              case 2 -> {
+              case "2" -> {
                 dispatchService.dispatchList();
               }
-              case 3 -> {
+              case "3" -> {
                 dispatchService.dispatchModify();
               }
-              case 4 -> {
+              case "4" -> {
                 dispatchService.dispatchCancle();
               }
             }printMenu(userVO);
           }
-          case 4 -> {
+          case "4" -> {
             System.out.println("1.운송장등록 | 2.운송장리스트 조회 | 3.운송장 수정");
-            selectNum = Integer.parseInt(bf.readLine());
+            selectNum = bf.readLine();
+            ReleaseExceptionList.validOverZeroNumber(selectNum);
             switch (selectNum) {
-              case 1 -> {
+              case "1" -> {
                 waybillService.waybillAdd();
               }
-              case 2 -> {
+              case "2" -> {
                 waybillService.waybillList(userVO);
               }
-              case 3 -> {
+              case "3" -> {
                 waybillService.waybillModify();
               }
             }
@@ -111,21 +116,22 @@ public class ReleaseService implements IReleaseService {
       try {
         System.out.println("==출고 메뉴==");
         System.out.println("1.출고요청 | 2.출고리스트 조회 | 3.출고상품 검색 | 4.운송장 조회 | 5. 나가기");
-        selectNum = Integer.parseInt(bf.readLine());
+        selectNum = bf.readLine();
+        ReleaseExceptionList.validOverZeroNumber(selectNum);
         switch (selectNum) {
-          case 1 -> {
+          case "1" -> {
             releaseService.releaseRequest(userVO);
             printMenu(userVO);
           }
-          case 2 -> {
+          case "2" -> {
             releaseService.releaseList(userVO);
             printMenu(userVO);
           }
-          case 3 -> {
+          case "3" -> {
             releaseService.releaseSearch(userVO);
             printMenu(userVO);
           }
-          case 4 ->{
+          case "4" ->{
             waybillService.waybillList(userVO);
             printMenu(userVO);
           }
