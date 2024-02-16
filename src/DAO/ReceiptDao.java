@@ -121,7 +121,7 @@ public class ReceiptDao extends DBconnector{
             connectDB();
             String sql = "update receipt set " +
                     "rec_date = ?, p_quantity = ?, approval = ?, state =?, qrcode = ? " +
-                    "where Rec_id = ? ";
+                    "where Rec_id = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
 
             pstmt.setString(1, receipt.getReceiptDate());
@@ -132,11 +132,18 @@ public class ReceiptDao extends DBconnector{
             pstmt.setInt(6, receipt.getReceiptId());
 
 
-            pstmt.executeUpdate();
+            int ack = pstmt.executeUpdate();
             pstmt.close();
-            System.out.println("입고 요청이 수정되었습니다.");
-        }catch (SQLException se) {
+            if(ack>0) {
+                System.out.println("입고 요청이 수정되었습니다.");
+            } else if(ack==0){
+                System.out.println("입고 요청 수정 실패");
+            }
+        }
+        catch (SQLException se) {
+//            se.printStackTrace();
             if (se.getSQLState().equals("45000")) {
+                se.printStackTrace();
                 System.out.println("창고 용량이 초과 되어 입고 할 수 없습니다.");
             }
         }

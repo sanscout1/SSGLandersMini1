@@ -5,7 +5,7 @@ public class ReleaseExceptionList {
 
   // 1이상 숫자만 입력
   public static void validOverZeroNumber(String inputNum) {
-    String regex = "[1-9]\\\\d*|\\\\d{2,}";
+    String regex = "\\d+";
     if (!inputNum.matches(regex)) {
       throw new ReleaseException(ReleaseErrorCode.INVALID_NUMBER);
     }

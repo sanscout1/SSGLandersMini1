@@ -5,7 +5,6 @@ import DAO.ReceiptDao;
 import Exception.ReceiptException.ReceiptExceptionList;
 import VO.ReceiptVO;
 import VO.UserVO;
-import VO.WarehouseVO;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -54,7 +53,7 @@ public class ReceiptService implements IReceiptService {
                 case "3" -> receiptRequestDelete(userVO);
                 case "4" -> receiptPaper(userVO);
                 case "5" -> receiptListChoice(userVO);
-//            case "6" -> UserService.memberLogin();
+                default ->{ }
             }
         } catch (Exception e) {
             receiptAdminMenu(userVO);
@@ -91,7 +90,7 @@ public class ReceiptService implements IReceiptService {
                     }
                 }
             }
-            System.out.println("입고 요청이 승인되었습니다.");
+            System.out.println("입고 요청이 완료되었습니다.");
             receiptAdminMenu(userVO);
         } catch (Exception e) {
 
@@ -111,18 +110,17 @@ public class ReceiptService implements IReceiptService {
             System.out.println("=====입고 고지서 조회=====");
             while (true) {
                 receiptList(userVO);    // 관리자로 들어가서 회원들 입고 요청 승인된 리스트 출력
-                System.out.print("출력할 입고 건을 선택하세요\n UID 입력 : ");
+                System.out.print("출력할 회원 별 입고 건을 선택하세요\nUID 입력 : ");
                 String choice = input.readLine();
                 ReceiptExceptionList.validateInput(choice);
-
                 for (ReceiptVO receiptVO : receiptVOList) {
                     if (receiptVO.getUId() == Integer.parseInt(choice)) {
                         System.out.println("=====입고 고지서 출력=====");
-                        System.out.printf("입고 ID : %d\n", receipt.getReceiptId());
-                        System.out.printf("입고 날짜 : %s\n", receipt.getReceiptDate());
-                        System.out.printf("상품 ID : %s, 상품 수량 : %s\n", receipt.getPId(), receipt.getProductQuantity());
-                        System.out.printf("입고될 창고 ID : %d\n", receipt.getWId());
-                        System.out.printf("상태 : %d\n", receipt.getState());
+                        System.out.printf("입고 ID : %d\n", receiptVO.getReceiptId());
+                        System.out.printf("입고 날짜 : %s\n", receiptVO.getReceiptDate());
+                        System.out.printf("상품 ID : %s, 상품 수량 : %s\n", receiptVO.getPId(), receiptVO.getProductQuantity());
+                        System.out.printf("입고될 창고 ID : %d\n", receiptVO.getWId());
+                        System.out.printf("상태 : %d\n", receiptVO.getState());
                     }
                 }
                 System.out.print("더 출력하시겠습니까? (y/n) : ");
@@ -130,8 +128,9 @@ public class ReceiptService implements IReceiptService {
                 ReceiptExceptionList.validateInputChoice(inputChoice);
 
 
-                if (inputChoice.equalsIgnoreCase("n"))
-                    break;
+                if (inputChoice.equalsIgnoreCase("n")){
+                    receiptAdminMenu(userVO);
+                    break;}
 
             }
         } catch (Exception e) {
@@ -353,8 +352,7 @@ public class ReceiptService implements IReceiptService {
 
     // 입고 현황 조회 화면 -> 회원일 때랑 관리자일 때 다르게
     private void receiptList(UserVO userVO) {
-        receiptDao.receiptRead(userVO);
-        receiptListChoice(userVO);
+        this.receiptVOList=receiptDao.receiptRead(userVO);
     }
 
     // 기간별 입고 현황 화면 -> 회원일 때랑 관리자일 때 다르게
