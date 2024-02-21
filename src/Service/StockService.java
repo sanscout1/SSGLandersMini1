@@ -9,6 +9,7 @@ import VO.StockVO;
 import VO.UserVO;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,9 +38,7 @@ public class StockService implements IStockService {
             if (user.getUserType() == 1) {
                 System.out.println("재고 관리 메뉴");
                 System.out.println("1. 재고 조회 | 2. 나가기");
-                String tmp = reader.readLine();
-                StockExceptionList.validateInteger(tmp);
-                int select = Integer.parseInt(tmp);
+                int select = checkInputNum();
                 StockExceptionList.validateNumberSelection(select);
                 switch (select) {
                     case 1 -> {printStock(); stockMenu(user);}
@@ -51,9 +50,7 @@ public class StockService implements IStockService {
             } else if (user.getUserType() == 2) {
                 System.out.println("재고 관리 메뉴");
                 System.out.println("1. 재고 조회 | 2. 나가기");
-                String tmp = reader.readLine();
-                StockExceptionList.validateInteger(tmp);
-                int select = Integer.parseInt(tmp);
+                int select = checkInputNum();
                 StockExceptionList.validateNumberSelection(select);
                 switch (select) {
                     case 1 -> {printMyStock(user.getUserID()); stockMenu(user);}
@@ -87,21 +84,17 @@ public class StockService implements IStockService {
     private void printStock() {
         try {
             System.out.println("조회 방법 : 1.전체 조회 | 2.대분류 조회 ");
-            String tmp = reader.readLine();
-            StockExceptionList.validateInteger(tmp);
-            int choice = Integer.parseInt(tmp);
+            int choice = checkInputNum();
             StockExceptionList.validateNumberSelection(choice);
             if (choice == 1) {
                 printList("" ,0);
             } else if (choice == 2) {
                 System.out.println("대분류를 입력해주세요");
-                tmp =reader.readLine();
+                String tmp =reader.readLine();
                 StockExceptionList.validateName(tmp);
                 printList(tmp,1);
                 System.out.println("중분류 조회 : 1.조회 하기 | 2.조회 취소");
-                tmp = reader.readLine();
-                StockExceptionList.validateInteger(tmp);
-                choice = Integer.parseInt(tmp);
+                choice = checkInputNum();
                 StockExceptionList.validateNumberSelection(choice);
                 if (choice == 1) {
                     System.out.println("중분류를 입력해주세요");
@@ -109,9 +102,7 @@ public class StockService implements IStockService {
                     StockExceptionList.validateName(tmp);
                     printList(tmp,2);
                     System.out.println("소분류 조회 : 1.조회 하기 | 2.조회 취소");
-                    tmp = reader.readLine();
-                    StockExceptionList.validateInteger(tmp);
-                    choice = Integer.parseInt(tmp);
+                    choice = checkInputNum();
                     StockExceptionList.validateNumberSelection(choice);
                     if (choice == 1) {
                         System.out.println("소분류를 입력해주세요");
@@ -142,5 +133,11 @@ public class StockService implements IStockService {
                         stockVO.getWarehouseName(), stockVO.getAddressCity(), stockVO.getQuantity(), stockVO.getPname());
             }
         }
+    }
+
+    private int checkInputNum() throws IOException {
+        String tmp = reader.readLine();
+        StockExceptionList.validateInteger(tmp);
+        return Integer.parseInt(tmp);
     }
 }

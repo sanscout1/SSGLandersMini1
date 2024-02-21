@@ -8,6 +8,7 @@ import VO.FinanceVO;
 import VO.UserVO;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,20 +36,19 @@ public class FinanceService implements IFinanceService {
             System.out.println();
             System.out.println("재무 관리 메뉴");
             System.out.println("1. 모든 재무 조회 | 2. 창고 별 재무 조회 | 3. 나가기");
-            String tmp = reader.readLine();
-            FinanceExceptionList.validateInteger(tmp);
-            int choice = Integer.parseInt(tmp);
+            int choice = checkInputNum();
             FinanceExceptionList.validateNumbersSelection(choice);
             switch (choice) {
                 case 1 -> printAllFinance();
                 case 2 -> printWarehouseFinance();
-                default -> {break;}
+                default -> {
+                    break;
+                }
             }
         } catch (FinanceException fe) {
             System.out.println();
             financeMenu();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
         }
     }
 
@@ -57,9 +57,7 @@ public class FinanceService implements IFinanceService {
         System.out.println();
         System.out.println("1.전체 내역 조회 | 2.전체 수익 조회 | 3.전체 지출 조회");
         try {
-            String tmp = reader.readLine();
-            FinanceExceptionList.validateInteger(tmp);
-            int choice = Integer.parseInt(tmp);
+            int choice = checkInputNum();
             FinanceExceptionList.validateNumbersSelection(choice);
             financeVOList = financeDao.financeTypeRead(choice);
             System.out.printf("%-12s%-12s%-23s%-12s\n", "입고 번호", "재무 종류", "날짜", "금액");
@@ -74,7 +72,7 @@ public class FinanceService implements IFinanceService {
         } catch (FinanceException fe) {
             System.out.println();
             printAllFinance();
-        }catch (Exception e) {
+        } catch (Exception e) {
         }
 
     }
@@ -85,9 +83,7 @@ public class FinanceService implements IFinanceService {
         System.out.println("1. 총 정산하기 | 2.나가기");
         int total = 0;
         try {
-            String tmp = reader.readLine();
-            FinanceExceptionList.validateInteger(tmp);
-            int choice = Integer.parseInt(tmp);
+            int choice = checkInputNum();
             FinanceExceptionList.validateNumberSelection(choice);
             if (choice == 1) {
                 financeVOList = financeDao.financeTypeRead(1);
@@ -105,7 +101,7 @@ public class FinanceService implements IFinanceService {
         } catch (FinanceException fe) {
             System.out.println();
             printCalculateAllFinance();
-        }catch (Exception e) {
+        } catch (Exception e) {
         }
     }
 
@@ -116,42 +112,37 @@ public class FinanceService implements IFinanceService {
         System.out.println("내역을 조회 할 창고 ID를 입력하세요");
 
         try {
-            String tmp = reader.readLine();
-            FinanceExceptionList.validateInteger(tmp);
-            int WID = Integer.parseInt(tmp);
+            int WID = checkInputNum();
             financeVOList = financeDao.financeWarehouseRead(WID);
 
-                System.out.printf("%-12s%-12s%-15s%-25s%-12s\n", "창고 번호", "입고 번호", "재무 종류", "날짜", "금액");
-                for (FinanceVO financeVO : financeVOList) {
-                    String ftype;
-                    if (financeVO.getFtype() == 0) ftype = "수익";
-                    else ftype = "지출";
-                    System.out.printf("%-14d%-14d%-18s%-26s%-12d\n", financeVO.getWarehouseID(), financeVO.getRecID(), ftype, financeVO.getFdate(), financeVO.getAmount());
-                }
-            if(!financeVOList.isEmpty()) {
-            System.out.println();
-            System.out.println("1.창고 수익 조회 | 2.창고 지출 조회 | 3. 창고 정산 하기 ");
-            tmp = reader.readLine();
-            FinanceExceptionList.validateInteger(tmp);
-            int choice = Integer.parseInt(tmp);
-            FinanceExceptionList.validateNumbersSelection(choice);
-            if (choice == 1) {
-                printChargeWarehouse(financeVOList, WID);
-            } else if (choice == 2) {
-                printcostWarehouse(financeVOList, WID);
-            } else if (choice == 3) {
-                printCalculateWarehouseFinance(WID);
+            System.out.printf("%-12s%-12s%-15s%-25s%-12s\n", "창고 번호", "입고 번호", "재무 종류", "날짜", "금액");
+            for (FinanceVO financeVO : financeVOList) {
+                String ftype;
+                if (financeVO.getFtype() == 0) ftype = "수익";
+                else ftype = "지출";
+                System.out.printf("%-14d%-14d%-18s%-26s%-12d\n", financeVO.getWarehouseID(), financeVO.getRecID(), ftype, financeVO.getFdate(), financeVO.getAmount());
             }
+            if (!financeVOList.isEmpty()) {
+                System.out.println();
+                System.out.println("1.창고 수익 조회 | 2.창고 지출 조회 | 3. 창고 정산 하기 ");
+                int choice = checkInputNum();
+                FinanceExceptionList.validateNumbersSelection(choice);
+                if (choice == 1) {
+                    printChargeWarehouse(financeVOList, WID);
+                } else if (choice == 2) {
+                    printcostWarehouse(financeVOList, WID);
+                } else if (choice == 3) {
+                    printCalculateWarehouseFinance(WID);
+                }
             } else {
                 System.out.println("내역이 없습니다.");
                 financeMenu();
             }
 
-        }
-        catch (FinanceException fe) {
+        } catch (FinanceException fe) {
             System.out.println();
             printWarehouseFinance();
-        }catch (Exception e) {
+        } catch (Exception e) {
         }
     }
 
@@ -165,29 +156,26 @@ public class FinanceService implements IFinanceService {
             }
         }
         try {
-        if(!financeVOList.isEmpty()){
-        System.out.println();
-        System.out.println("1. 내역 수정하기 | 2. 내역 삭제하기 | 3. 나가기");
-
-            String tmp = reader.readLine();
-            FinanceExceptionList.validateInteger(tmp);
-            int choice = Integer.parseInt(tmp);
-            FinanceExceptionList.validateNumbersSelection(choice);
-            if (choice == 1) {
-                updateWarehouseFinance(0,WID);
-            } else if (choice == 2) {
-                deleteWarehouseFinance(0,WID);
+            if (!financeVOList.isEmpty()) {
+                System.out.println();
+                System.out.println("1. 내역 수정하기 | 2. 내역 삭제하기 | 3. 나가기");
+                int choice = checkInputNum();
+                FinanceExceptionList.validateNumbersSelection(choice);
+                if (choice == 1) {
+                    updateWarehouseFinance(0, WID);
+                } else if (choice == 2) {
+                    deleteWarehouseFinance(0, WID);
+                } else {
+                    financeMenu();
+                }
             } else {
-                financeMenu();
+                System.out.println("해당 창고는 비어 있습니다.");
             }
-        } else {
-            System.out.println("해당 창고는 비어 있습니다.");
-        }
 
         } catch (FinanceException fe) {
             System.out.println();
-            printChargeWarehouse(financeVOList,WID);
-        }catch (Exception e) {
+            printChargeWarehouse(financeVOList, WID);
+        } catch (Exception e) {
         }
     }
 
@@ -203,25 +191,23 @@ public class FinanceService implements IFinanceService {
         System.out.println();
         System.out.println("1. 내역 수정하기 | 2. 내역 삭제하기 | 3. 나가기");
         try {
-        if(!financeVOList.isEmpty()){
-            String tmp = reader.readLine();
-            FinanceExceptionList.validateInteger(tmp);
-            int choice = Integer.parseInt(tmp);
-            FinanceExceptionList.validateNumbersSelection(choice);
-            if (choice == 1) {
-                updateWarehouseFinance(1,WID);
-            } else if (choice == 2) {
-                deleteWarehouseFinance(1,WID);
+            if (!financeVOList.isEmpty()) {
+                int choice = checkInputNum();
+                FinanceExceptionList.validateNumbersSelection(choice);
+                if (choice == 1) {
+                    updateWarehouseFinance(1, WID);
+                } else if (choice == 2) {
+                    deleteWarehouseFinance(1, WID);
+                } else {
+                    printWarehouseFinance();
+                }
             } else {
-                printWarehouseFinance();
+                System.out.println("해당 창고는 비어 있습니다.");
             }
-        } else {
-            System.out.println("해당 창고는 비어 있습니다.");
-        }
         } catch (FinanceException fe) {
             System.out.println();
-            printcostWarehouse(financeVOList,WID);
-        }catch (Exception e) {
+            printcostWarehouse(financeVOList, WID);
+        } catch (Exception e) {
         }
     }
 
@@ -246,19 +232,15 @@ public class FinanceService implements IFinanceService {
         System.out.println();
         System.out.println("수정 할 입고 번호를 입력해주세요");
         try {
-            String tmp = reader.readLine();
-            FinanceExceptionList.validateInteger(tmp);
-            int recid = Integer.parseInt(tmp);
+            int recid = checkInputNum();
             System.out.println("금액을 입력해주세요");
-            tmp = reader.readLine();
-            FinanceExceptionList.validateInteger(tmp);
-            int amount = Integer.parseInt(tmp);
-            financeDao.financeUpdate(amount, recid, ftype,WID);
+            int amount = checkInputNum();
+            financeDao.financeUpdate(amount, recid, ftype, WID);
             financeMenu();
         } catch (FinanceException fe) {
             System.out.println();
             updateWarehouseFinance(ftype, WID);
-        }catch (Exception e) {
+        } catch (Exception e) {
         }
     }
 
@@ -266,16 +248,20 @@ public class FinanceService implements IFinanceService {
         try {
             System.out.println();
             System.out.println("삭제 할 입고 번호를 입력해주세요");
-            String tmp = reader.readLine();
-            FinanceExceptionList.validateInteger(tmp);
-            int recid = Integer.parseInt(tmp);
-            financeDao.financeDelete(recid, ftype,WID);
+            int recid = checkInputNum();
+            financeDao.financeDelete(recid, ftype, WID);
             financeMenu();
         } catch (FinanceException fe) {
             System.out.println();
-            deleteWarehouseFinance(ftype,WID);}
-        catch (Exception e) {
+            deleteWarehouseFinance(ftype, WID);
+        } catch (Exception e) {
         }
+    }
+
+    private int checkInputNum() throws IOException {
+        String tmp = reader.readLine();
+        FinanceExceptionList.validateInteger(tmp);
+        return Integer.parseInt(tmp);
     }
 
 

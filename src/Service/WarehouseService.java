@@ -2,12 +2,14 @@ package Service;
 
 import API.IWarehouseService;
 import DAO.WarehouseDao;
+import Exception.FinanceException.FinanceExceptionList;
 import Exception.WarehouseException.WarehouseException;
 import Exception.WarehouseException.WarehouseExceptionList;
 import VO.UserVO;
 import VO.WarehouseVO;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
@@ -38,9 +40,7 @@ public class WarehouseService implements IWarehouseService {
             if (user.getUserType() == 1) {
                 System.out.println("창고 관리 메뉴");
                 System.out.println("1. 창고 등록 | 2. 창고 조회 | 3. 나가기");
-                String tmp = reader.readLine();
-                WarehouseExceptionList.validateInteger(tmp);
-                int choice = Integer.parseInt(tmp);
+                int choice = checkInputNum();
                 WarehouseExceptionList.validateNumbersSelection(choice);
                 switch (choice){
                     case 1 -> addWarehouse();
@@ -51,9 +51,7 @@ public class WarehouseService implements IWarehouseService {
             } else if (user.getUserType() == 2){
                 System.out.println("창고 요금 메뉴");
                 System.out.println("1. 창고 요금 조회 | 2. 나가기 ");
-                String tmp = reader.readLine();
-                WarehouseExceptionList.validateInteger(tmp);
-                int choice = Integer.parseInt(tmp);
+                int choice = checkInputNum();
                 WarehouseExceptionList.validateNumberSelection(choice);
                 switch (choice){
                     case 1 -> getWarehouseCharge();
@@ -71,9 +69,7 @@ public class WarehouseService implements IWarehouseService {
         try {
             System.out.println("창고 타입을 입력해주세요");
             System.out.println("1. 기본 | 2. 냉장 | 3. 냉동");
-            String tmp = reader.readLine();
-            WarehouseExceptionList.validateInteger(tmp);
-            int wtype = Integer.parseInt(tmp);
+            int wtype = checkInputNum();
             WarehouseExceptionList.validateNumbersSelection(wtype);
             int charge = setCharge(wtype);
             int cost = setCost(wtype);
@@ -84,9 +80,7 @@ public class WarehouseService implements IWarehouseService {
             String city = reader.readLine();
             WarehouseExceptionList.validateAddress(city);
             System.out.println("창고의 최대 수용 용량을 작성해주세요");
-            tmp = reader.readLine();
-            WarehouseExceptionList.validateInteger(tmp);
-            int totalCapacity = Integer.parseInt(tmp);
+            int totalCapacity = checkInputNum();
             warehouse = new WarehouseVO(myUser.getUserID(), wtype, wname, city, totalCapacity, charge, cost);
             warehouseDao.warehouseCreate(warehouse);
             warehouseMenu(myUser);
@@ -138,9 +132,7 @@ public class WarehouseService implements IWarehouseService {
         List<WarehouseVO> warehouseVOList = warehouseDao.warehouseRead();
         System.out.println("1. 전체 조회 | 2. 소재지 별 조회 | 3. 창고명 별 조회 | 4. 종류 별 조회");
         try {
-            String tmp = reader.readLine();
-            WarehouseExceptionList.validateInteger(tmp);
-            int select = Integer.parseInt(tmp);
+            int select = checkInputNum();
             WarehouseExceptionList.validateMenuSelection(select);
             switch (select) {
                 case 1 -> getWarehouseAll(warehouseVOList, null, 0);
@@ -221,9 +213,7 @@ public class WarehouseService implements IWarehouseService {
         System.out.println("창고 종류 입력");
         System.out.println("1. 기본 | 2. 냉장 | 3. 냉동");
         try {
-            String tmp = reader.readLine();
-            WarehouseExceptionList.validateInteger(tmp);
-            int wtype = Integer.parseInt(tmp);
+            int wtype = checkInputNum();
             WarehouseExceptionList.validateNumbersSelection(wtype);
             getWarehouseAll(warehouseVOList, wtype, 3);
         } catch (WarehouseException we) {
@@ -235,9 +225,7 @@ public class WarehouseService implements IWarehouseService {
         System.out.println("창고 요금 안내");
         System.out.println("1. 기본 | 2. 냉장 | 3. 냉동");
         try {
-            String tmp = reader.readLine();
-            WarehouseExceptionList.validateInteger(tmp);
-            int wtype = Integer.parseInt(tmp);
+            int wtype = checkInputNum();
             WarehouseExceptionList.validateNumbersSelection(wtype);
             List<WarehouseVO> warehouseVOList = warehouseDao.warehouseChargeRead(wtype);
             System.out.printf("%-6s%-17s%-10s%-13s%-13s%-9s\n", "창고타입", "창고 이름", "창고 위치", "창고 총 용량",
@@ -252,5 +240,11 @@ public class WarehouseService implements IWarehouseService {
             getWarehouseCharge();
         }catch (Exception e){}
         warehouseMenu(myUser);
+    }
+
+    private int checkInputNum() throws IOException {
+        String tmp = reader.readLine();
+        WarehouseExceptionList.validateInteger(tmp);
+        return Integer.parseInt(tmp);
     }
 }
