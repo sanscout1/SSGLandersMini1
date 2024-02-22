@@ -103,7 +103,6 @@ public class ReleaseDao extends DBconnector {
         String sql = new StringBuilder().append("SELECT * FROM ssglandersretail.release WHERE UID = ?").toString();
         pstmt = conn.prepareStatement(sql);
         pstmt.setInt(1, userVO.getUserID());
-
       }
 
       //SQL문 실행

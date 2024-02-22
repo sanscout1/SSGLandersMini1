@@ -195,87 +195,52 @@ public class ReceiptDao extends DBconnector{
     public List<ReceiptVO> receiptRead(UserVO userVO) {
         try {
             connectDB();
+            StringBuilder sql = new StringBuilder("select * from receipt");
+            PreparedStatement pstmt=null;
+            receiptVOList = new ArrayList<>();
             if (userVO.getUserType() == 1) {     // userType 이 1인 경우(관리자) UID 별로 조회
-                String sql = "select * from receipt";
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-
-                ResultSet rs = pstmt.executeQuery();
-                receiptVOList = new ArrayList<>();
-
-                while (rs.next()) {
-                    ReceiptVO receiptVO = new ReceiptVO();
-                    receiptVO.setReceiptId(rs.getInt("Rec_ID"));
-                    receiptVO.setReceiptDate(rs.getString("rec_date"));
-                    receiptVO.setProductQuantity(rs.getInt("p_quantity"));
-                    receiptVO.setState(rs.getInt("state"));
-                    receiptVO.setQrCode(rs.getInt("qrcode"));
-                    receiptVO.setApproval(rs.getInt("approval"));
-                    receiptVO.setUId(rs.getInt("UID"));
-                    receiptVO.setPId(rs.getInt("PID"));
-                    receiptVO.setWId(rs.getInt("WID"));
-                    receiptVOList.add(receiptVO);
-                }
-
-
-                for (ReceiptVO receiptVO : receiptVOList) {
-
-                    System.out.print("UID : " + receiptVO.getUId());
-                    System.out.print(" WID : " + receiptVO.getWId());
-                    System.out.print(" 입고 ID : " + receiptVO.getReceiptId());
-                    System.out.print(" 입고 날짜 : " + receiptVO.getReceiptDate());
-                    System.out.print(" 승인 여부 : " + receiptVO.getApproval());
-                    System.out.print(" PID : " + receiptVO.getPId());
-                    System.out.printf(" 상품 수량 : %4d ", receiptVO.getProductQuantity());
-                    System.out.print(" 상태 : " + receiptVO.getState());
-
-
-                    System.out.println();
-                }
-
-                rs.close();
-                pstmt.close();
-                return receiptVOList;
-
-
+                pstmt = conn.prepareStatement(String.valueOf(sql));
             } else if (userVO.getUserType() == 2) {       // userType 이 2인 경우 UID = ? 로 조회
-                String sql = "select * from receipt where UID = ?";
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-
+                sql.append(" where UID = ?");
+                pstmt = conn.prepareStatement(String.valueOf(sql));
                 pstmt.setInt(1, userVO.getUserID());
 
-                ResultSet rs = pstmt.executeQuery();
-                receiptVOList = new ArrayList<>();
-
-                while (rs.next()) {
-                    ReceiptVO receiptVO = new ReceiptVO();
-                    receiptVO.setReceiptId(rs.getInt("Rec_ID"));
-                    receiptVO.setReceiptDate(rs.getString("rec_date"));
-                    receiptVO.setProductQuantity(rs.getInt("p_quantity"));
-                    receiptVO.setState(rs.getInt("state"));
-                    receiptVO.setQrCode(rs.getInt("qrcode"));
-                    receiptVO.setApproval(rs.getInt("approval"));
-                    receiptVO.setUId(rs.getInt("UID"));
-                    receiptVO.setPId(rs.getInt("PID"));
-                    receiptVO.setWId(rs.getInt("WID"));
-                    receiptVOList.add(receiptVO);
-                }
-
-                for (ReceiptVO receiptVO : receiptVOList) {
-                    if (receiptVO.getUId() == userVO.getUserID()) {
-                        System.out.print("UID : " + receiptVO.getUId());
-                        System.out.print(" PID : " + receiptVO.getPId());
-                        System.out.print(" 입고 ID : " + receiptVO.getReceiptId());
-                        System.out.print(" 입고 날짜 : " + receiptVO.getReceiptDate());
-                        System.out.printf(" 상품 수량 : %4d ", receiptVO.getProductQuantity());
-                        System.out.print(" 상태 : " + receiptVO.getState());
-                        System.out.println();
-                    }
-                }
-                rs.close();
-                pstmt.close();
-                return receiptVOList;
             }
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                ReceiptVO receiptVO = new ReceiptVO();
+                receiptVO.setReceiptId(rs.getInt("Rec_ID"));
+                receiptVO.setReceiptDate(rs.getString("rec_date"));
+                receiptVO.setProductQuantity(rs.getInt("p_quantity"));
+                receiptVO.setState(rs.getInt("state"));
+                receiptVO.setQrCode(rs.getInt("qrcode"));
+                receiptVO.setApproval(rs.getInt("approval"));
+                receiptVO.setUId(rs.getInt("UID"));
+                receiptVO.setPId(rs.getInt("PID"));
+                receiptVO.setWId(rs.getInt("WID"));
+                receiptVOList.add(receiptVO);
+            }
+
+
+            for (ReceiptVO receiptVO : receiptVOList) {
+
+                System.out.print("UID : " + receiptVO.getUId());
+                System.out.print(" WID : " + receiptVO.getWId());
+                System.out.print(" 입고 ID : " + receiptVO.getReceiptId());
+                System.out.print(" 입고 날짜 : " + receiptVO.getReceiptDate());
+                System.out.print(" 승인 여부 : " + receiptVO.getApproval());
+                System.out.print(" PID : " + receiptVO.getPId());
+                System.out.printf(" 상품 수량 : %4d ", receiptVO.getProductQuantity());
+                System.out.print(" 상태 : " + receiptVO.getState());
+
+
+                System.out.println();
+            }
+
+            rs.close();
+            pstmt.close();
             System.out.println("입고 요청을 조회했습니다.");
+            return receiptVOList;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -284,176 +249,98 @@ public class ReceiptDao extends DBconnector{
         return receiptVOList;
     }
 
-    public void receiptPeriodRead(UserVO userVO, String firstDate, String lastDate) {       // 기간별 입고 현황 조회
+    public List<ReceiptVO> receiptPeriodRead(UserVO userVO, String firstDate, String lastDate) {       // 기간별 입고 현황 조회
         try {
 
             connectDB();
+            receiptVOList = new ArrayList<>();
+            StringBuilder sql = new StringBuilder("select * from receipt where rec_date between ? and ?");
+            PreparedStatement pstmt = null;
             if (userVO.getUserType() == 1) {     // userType 이 1인 경우(관리자) UID 별로 조회
-                String sql = "select * from receipt where rec_date between ? and ?";
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-
-                receiptVOList = new ArrayList<>();
-
+                pstmt = conn.prepareStatement(String.valueOf(sql));
                 pstmt.setString(1, firstDate);
                 pstmt.setString(2, lastDate);
 
-                ResultSet rs = pstmt.executeQuery();
-
-                while (rs.next()) {
-                    ReceiptVO receiptVO = new ReceiptVO();
-                    receiptVO.setReceiptId(rs.getInt("Rec_ID"));
-                    receiptVO.setReceiptDate(rs.getString("rec_date"));
-                    receiptVO.setProductQuantity(rs.getInt("p_quantity"));
-                    receiptVO.setState(rs.getInt("state"));
-                    receiptVO.setQrCode(rs.getInt("qrcode"));
-                    receiptVO.setApproval(rs.getInt("approval"));
-                    receiptVO.setUId(rs.getInt("UID"));
-                    receiptVO.setPId(rs.getInt("PID"));
-                    receiptVO.setWId(rs.getInt("WID"));
-                    receiptVOList.add(receiptVO);
-                }
-
-                for (ReceiptVO receiptVO : receiptVOList) {
-                    System.out.print("입고 ID : " + receiptVO.getReceiptId());
-                    System.out.print(" 입고 날짜 : " + receiptVO.getReceiptDate());
-                    System.out.printf(" 상품 수량 : %4d ", receiptVO.getProductQuantity());
-                    System.out.print(" 상태 : " + receiptVO.getState());
-                    System.out.print(" 요청 승인 여부 : " + receiptVO.getApproval());
-                    System.out.println();
-                }
-
-                rs.close();
-                pstmt.close();
-
             } else if (userVO.getUserType() == 2) {       // userType 이 2인 경우 UID = ? 로 조회
-                String sql = "select * from receipt where UID = ? and rec_date between ? and ?";
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-
-                receiptVOList = new ArrayList<>();
-
-                pstmt.setInt(1, userVO.getUserID());
-                pstmt.setString(2, firstDate);
-                pstmt.setString(3, lastDate);
-
-                ResultSet rs = pstmt.executeQuery();
-
-                while (rs.next()) {
-                    ReceiptVO receiptVO = new ReceiptVO();
-                    receiptVO.setReceiptId(rs.getInt("Rec_ID"));
-                    receiptVO.setReceiptDate(rs.getString("rec_date"));
-                    receiptVO.setProductQuantity(rs.getInt("p_quantity"));
-                    receiptVO.setState(rs.getInt("state"));
-                    receiptVO.setQrCode(rs.getInt("qrcode"));
-                    receiptVO.setApproval(rs.getInt("approval"));
-                    receiptVO.setUId(rs.getInt("UID"));
-                    receiptVO.setPId(rs.getInt("PID"));
-                    receiptVO.setWId(rs.getInt("WID"));
-                    receiptVOList.add(receiptVO);
-                }
-
-                for (ReceiptVO receiptVO : receiptVOList) {
-                    System.out.print("입고 ID : " + receiptVO.getReceiptId());
-                    System.out.print(" 입고 날짜 : " + receiptVO.getReceiptDate());
-                    System.out.printf(" 상품 수량 : %4d ", receiptVO.getProductQuantity());
-                    System.out.print(" 상태 : " + receiptVO.getState());
-                    System.out.print(" 요청 승인 여부 : " + receiptVO.getApproval());
-                    System.out.println();
-                }
-
-
-                rs.close();
-                pstmt.close();
-
+//                String sql = "select * from receipt where UID = ? and rec_date between ? and ?";
+                sql.append(" and UID = ?");
+                pstmt = conn.prepareStatement(String.valueOf(sql));
+                pstmt.setString(1, firstDate);
+                pstmt.setString(2, lastDate);
+                pstmt.setInt(3, userVO.getUserID());
             }
 
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                ReceiptVO receiptVO = new ReceiptVO();
+                receiptVO.setReceiptId(rs.getInt("Rec_ID"));
+                receiptVO.setReceiptDate(rs.getString("rec_date"));
+                receiptVO.setProductQuantity(rs.getInt("p_quantity"));
+                receiptVO.setState(rs.getInt("state"));
+                receiptVO.setQrCode(rs.getInt("qrcode"));
+                receiptVO.setApproval(rs.getInt("approval"));
+                receiptVO.setUId(rs.getInt("UID"));
+                receiptVO.setPId(rs.getInt("PID"));
+                receiptVO.setWId(rs.getInt("WID"));
+                receiptVOList.add(receiptVO);
+            }
+
+            rs.close();
+            pstmt.close();
+
             System.out.println("입고 요청을 조회했습니다.");
+            return  receiptVOList;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             closeDB();
         }
+        return null;
     }
 
-    public void receiptMonthRead(UserVO userVO) {       // 기간별 입고 현황 조회
+    public List<ReceiptVO> receiptMonthRead(UserVO userVO) {       // 기간별 입고 현황 조회
         try {
             connectDB();
+            receiptVOList = new ArrayList<>();
+            String sql;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
             if (userVO.getUserType() == 1) {     // userType 이 1인 경우(관리자) UID 별로 조회
-                String sql = "select * from receipt" +
+                sql = "select * from receipt" +
                         " order by rec_date, UID";
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-                receiptVOList = new ArrayList<>();
-                ResultSet rs = pstmt.executeQuery();
-
-                while (rs.next()) {
-                    ReceiptVO receiptVO = new ReceiptVO();
-                    receiptVO.setReceiptId(rs.getInt("Rec_ID"));
-                    receiptVO.setReceiptDate(rs.getString("rec_date"));
-                    receiptVO.setProductQuantity(rs.getInt("p_quantity"));
-                    receiptVO.setState(rs.getInt("state"));
-                    receiptVO.setQrCode(rs.getInt("qrcode"));
-                    receiptVO.setApproval(rs.getInt("approval"));
-                    receiptVO.setUId(rs.getInt("UID"));
-                    receiptVO.setPId(rs.getInt("PID"));
-                    receiptVO.setWId(rs.getInt("WID"));
-                    receiptVOList.add(receiptVO);
-                }
-
-                for (ReceiptVO receiptVO : receiptVOList) {
-                    System.out.print("입고 ID : " + receiptVO.getReceiptId());
-                    System.out.print(" 입고 날짜 : " + receiptVO.getReceiptDate());
-                    System.out.printf(" 상품 수량 : %4d ", receiptVO.getProductQuantity());
-                    System.out.print(" 상태 : " + receiptVO.getState());
-                    System.out.print(" 요청 승인 여부 : " + receiptVO.getApproval());
-                    System.out.println();
-                }
-
-
-                rs.close();
-                pstmt.close();
-
+                pstmt = conn.prepareStatement(sql);
+                rs = pstmt.executeQuery();
             } else if (userVO.getUserType() == 2) {       // userType 이 2인 경우 UID = ? 로 조회
-                String sql = "select * from receipt where UID = ? order by rec_date, UID ";
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-                receiptVOList = new ArrayList<>();
+                sql = "select * from receipt where UID = ? order by rec_date, UID ";
+                pstmt = conn.prepareStatement(sql);
                 pstmt.setInt(1, userVO.getUserID());
-
-                ResultSet rs = pstmt.executeQuery();
-
-                while (rs.next()) {
-                    ReceiptVO receiptVO = new ReceiptVO();
-                    receiptVO.setReceiptId(rs.getInt("Rec_ID"));
-                    receiptVO.setReceiptDate(rs.getString("rec_date"));
-                    receiptVO.setProductQuantity(rs.getInt("p_quantity"));
-                    receiptVO.setState(rs.getInt("state"));
-                    receiptVO.setQrCode(rs.getInt("qrcode"));
-                    receiptVO.setApproval(rs.getInt("approval"));
-                    receiptVO.setUId(rs.getInt("UID"));
-                    receiptVO.setPId(rs.getInt("PID"));
-                    receiptVO.setWId(rs.getInt("WID"));
-                    receiptVOList.add(receiptVO);
-                }
-
-                for (ReceiptVO receiptVO : receiptVOList) {
-                    System.out.print("입고 ID : " + receiptVO.getReceiptId());
-                    System.out.print(" 입고 날짜 : " + receiptVO.getReceiptDate());
-                    System.out.printf(" 상품 수량 : %4d ", receiptVO.getProductQuantity());
-                    System.out.print(" 상태 : " + receiptVO.getState());
-                    System.out.print(" 요청 승인 여부 : " + receiptVO.getApproval());
-                    System.out.println();
-                }
-
-
-                rs.close();
-                pstmt.close();
-
+                rs = pstmt.executeQuery();
+            }
+            while (rs.next()) {
+                ReceiptVO receiptVO = new ReceiptVO();
+                receiptVO.setReceiptId(rs.getInt("Rec_ID"));
+                receiptVO.setReceiptDate(rs.getString("rec_date"));
+                receiptVO.setProductQuantity(rs.getInt("p_quantity"));
+                receiptVO.setState(rs.getInt("state"));
+                receiptVO.setQrCode(rs.getInt("qrcode"));
+                receiptVO.setApproval(rs.getInt("approval"));
+                receiptVO.setUId(rs.getInt("UID"));
+                receiptVO.setPId(rs.getInt("PID"));
+                receiptVO.setWId(rs.getInt("WID"));
+                receiptVOList.add(receiptVO);
             }
 
+            rs.close();
+            pstmt.close();
             System.out.println("입고 요청을 조회했습니다.");
+            return receiptVOList;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             closeDB();
         }
+        return null;
     }
 
     public List<ReceiptVO> receiptReadApproval() {     // 입고 요청 승인 해주기 위해 approval = 0 인 놈들 갖고오기
@@ -477,18 +364,6 @@ public class ReceiptDao extends DBconnector{
                 receiptVO.setPId(rs.getInt("PID"));
                 receiptVO.setWId(rs.getInt("WID"));
                 receiptVOList.add(receiptVO);
-            }
-
-            for (ReceiptVO receiptVO : receiptVOList) {
-                System.out.print("입고 ID : " + receiptVO.getReceiptId());
-                System.out.print(" 입고 날짜 : " + receiptVO.getReceiptDate());
-                System.out.printf(" 상품 수량 : %4d ", receiptVO.getProductQuantity());
-                System.out.print(" 상태 : " + receiptVO.getState());
-                System.out.print(" 요청 승인 여부 : " + receiptVO.getApproval());
-                System.out.print(" UID :" + receiptVO.getUId());
-                System.out.print(" PID :" + receiptVO.getPId());
-                System.out.print(" WID :" + receiptVO.getWId());
-                System.out.println();
             }
 
 

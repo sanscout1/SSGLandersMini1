@@ -67,10 +67,19 @@ public class ReceiptService implements IReceiptService {
 
             System.out.println("입고 요청 승인 화면입니다.");
             receiptVOList = receiptDao.receiptReadApproval(); // -> approval 값이 0인 얘들 리스트
+            for (ReceiptVO receiptVO : receiptVOList) {
+                System.out.print("입고 ID : " + receiptVO.getReceiptId());
+                System.out.print(" 입고 날짜 : " + receiptVO.getReceiptDate());
+                System.out.printf(" 상품 수량 : %4d ", receiptVO.getProductQuantity());
+                System.out.print(" 상태 : " + receiptVO.getState());
+                System.out.print(" 요청 승인 여부 : " + receiptVO.getApproval());
+                System.out.print(" UID :" + receiptVO.getUId());
+                System.out.print(" PID :" + receiptVO.getPId());
+                System.out.print(" WID :" + receiptVO.getWId());
+                System.out.println();
+            }
             System.out.println("승인할 입고 요청의 입고 ID를 입력하세요.");
             System.out.println("q!를 입력하면 입력이 중지됩니다.");
-
-
 
             while (true) {
                 System.out.print("입력 : ");
@@ -387,8 +396,15 @@ public class ReceiptService implements IReceiptService {
 
 
             System.out.println(strNewDtFormat + " ~ " + strNewDtFormat1 + " 기간의 입고 현황입니다.\n");
-            receiptDao.receiptPeriodRead(userVO, strNewDtFormat, strNewDtFormat1);
-
+            receiptVOList=receiptDao.receiptPeriodRead(userVO, strNewDtFormat, strNewDtFormat1);
+            for (ReceiptVO receiptVO : receiptVOList) {
+                System.out.print("입고 ID : " + receiptVO.getReceiptId());
+                System.out.print(" 입고 날짜 : " + receiptVO.getReceiptDate());
+                System.out.printf(" 상품 수량 : %4d ", receiptVO.getProductQuantity());
+                System.out.print(" 상태 : " + receiptVO.getState());
+                System.out.print(" 요청 승인 여부 : " + receiptVO.getApproval());
+                System.out.println();
+            }
 
             System.out.println();
             receiptListChoice(userVO);
@@ -404,7 +420,15 @@ public class ReceiptService implements IReceiptService {
         System.out.println("==========================");
         System.out.println(userVO.getUserName() + "의 월 별 입고 현황입니다.");
         System.out.println("==========================");
-        receiptDao.receiptMonthRead(userVO);
+        receiptVOList= receiptDao.receiptMonthRead(userVO);
+        for (ReceiptVO receiptVO : receiptVOList) {
+            System.out.print("입고 ID : " + receiptVO.getReceiptId());
+            System.out.print(" 입고 날짜 : " + receiptVO.getReceiptDate());
+            System.out.printf(" 상품 수량 : %4d ", receiptVO.getProductQuantity());
+            System.out.print(" 상태 : " + receiptVO.getState());
+            System.out.print(" 요청 승인 여부 : " + receiptVO.getApproval());
+            System.out.println();
+        }
         System.out.println();
         receiptListChoice(userVO);
     }
