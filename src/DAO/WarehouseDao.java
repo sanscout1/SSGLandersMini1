@@ -55,11 +55,16 @@ public class WarehouseDao extends DBconnector{
             warehouseVOList = new ArrayList<WarehouseVO>();
 
             while (rs.next()){
-                WarehouseVO vo = new WarehouseVO(rs.getInt("WID"),rs.getInt("UID")
-                ,rs.getInt("wtype"),rs.getString("wname"),rs.getString("address_city")
-                ,rs.getInt("totalcapacity"),rs.getInt("usingcapacity"),rs.getInt("charge")
-                ,rs.getInt("cost"));
-                warehouseVOList.add(vo);
+                WarehouseVO vo = WarehouseVO.builder().warehouseID(rs.getInt("WID")).userID(rs.getInt("UID"))
+                        .warehouseType(rs.getInt("wtype")).warehouseName(rs.getString("wname"))
+                        .addressCity(rs.getString("address_city")).totalCapacity(rs.getInt("totalcapacity"))
+                        .usingCapacity(rs.getInt("usingcapacity")).charge(rs.getInt("charge"))
+                        .cost(rs.getInt("cost")).build();
+//                WarehouseVO vo = new WarehouseVO(rs.getInt("WID"),rs.getInt("UID")
+//                ,rs.getInt("wtype"),rs.getString("wname"),rs.getString("address_city")
+//                ,rs.getInt("totalcapacity"),rs.getInt("usingcapacity"),rs.getInt("charge")
+//                ,rs.getInt("cost"));
+//                warehouseVOList.add(vo);
             }
             rs.close();
             pstmt.close();

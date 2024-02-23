@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class StockService implements IStockService {
 
@@ -73,12 +74,15 @@ public class StockService implements IStockService {
         stockList = stockDao.stockUserRead(userID);
         System.out.printf("%-10s%-10s%-15s%-10s%-15s%-10s%-10s%-25s\n", "대분류", "중분류", "소분류", "창고 ID",
                 "창고 이름", "창고 주소", "제품 재고량", "제품 이름");
-        for (StockVO stockVO : stockList) {
-            System.out.printf("%-11s%-10s%-15s%-12s%-17s%-12s%-13d%-25s\n", stockVO.getTcategory(),
+        stockList.stream().forEach(stockVO -> System.out.printf("%-11s%-10s%-15s%-12s%-17s%-12s%-13d%-25s\n", stockVO.getTcategory(),
                     stockVO.getIcategory(), stockVO.getScategory(), stockVO.getWarehouseID(),
-                    stockVO.getWarehouseName(), stockVO.getAddressCity(), stockVO.getQuantity(), stockVO.getPname());
-
-        }
+                    stockVO.getWarehouseName(), stockVO.getAddressCity(), stockVO.getQuantity(), stockVO.getPname()));
+//        for (StockVO stockVO : stockList) {
+//            System.out.printf("%-11s%-10s%-15s%-12s%-17s%-12s%-13d%-25s\n", stockVO.getTcategory(),
+//                    stockVO.getIcategory(), stockVO.getScategory(), stockVO.getWarehouseID(),
+//                    stockVO.getWarehouseName(), stockVO.getAddressCity(), stockVO.getQuantity(), stockVO.getPname());
+//
+//        }
     }
 
     private void printStock() {
@@ -125,15 +129,46 @@ public class StockService implements IStockService {
         stockList = stockDao.stockAdminRead();
         System.out.printf("%-10s%-10s%-15s%-10s%-15s%-10s%-10s%-25s\n", "대분류", "중분류", "소분류", "창고 ID",
                 "창고 이름", "창고 주소", "제품 재고량", "제품 이름");
-        for (StockVO stockVO : stockList) {
-            if ( type ==0 || (stockVO.getTcategory().contains((CharSequence) identifier) && type ==1) || (stockVO.getIcategory().contains((CharSequence) identifier) && type == 2)
-                    || (stockVO.getScategory().contains((CharSequence) identifier)) && type == 3) {
-                System.out.printf("%-11s%-10s%-15s%-12s%-17s%-12s%-13d%-25s\n", stockVO.getTcategory(),
-                        stockVO.getIcategory(), stockVO.getScategory(), stockVO.getWarehouseID(),
-                        stockVO.getWarehouseName(), stockVO.getAddressCity(), stockVO.getQuantity(), stockVO.getPname());
+        Predicate<StockVO> filterPredicate = stockVO -> {
+            switch (type) {
+                case 1:
+                    return stockVO.getTcategory().contains((CharSequence) identifier);
+                case 2:
+                    return stockVO.getIcategory().contains((CharSequence) identifier);
+                case 3:
+                    return stockVO.getScategory().contains((CharSequence) identifier);
+                default:
+                    return true; // type == 0일 경우 모든 요소 포함
             }
-        }
+        };
+        stockList.stream()
+                .filter(filterPredicate)
+                .forEach(stockVO ->
+                        System.out.printf("%-11s%-10s%-15s%-12s%-17s%-12s%-13d%-25s\n",
+                                stockVO.getTcategory(), stockVO.getIcategory(), stockVO.getScategory(),
+                                stockVO.getWarehouseID(), stockVO.getWarehouseName(), stockVO.getAddressCity(),
+                                stockVO.getQuantity(), stockVO.getPname()));
+//        stockList.stream()
+//                .filter(stockVO ->
+//                        type == 0 ||
+//                                (type == 1 && stockVO.getTcategory().contains((CharSequence) identifier)) ||
+//                                (type == 2 && stockVO.getIcategory().contains((CharSequence) identifier)) ||
+//                                (type == 3 && stockVO.getScategory().contains((CharSequence) identifier)))
+//                .forEach(stockVO ->
+//                        System.out.printf("%-11s%-10s%-15s%-12s%-17s%-12s%-13d%-25s\n",
+//                                stockVO.getTcategory(), stockVO.getIcategory(), stockVO.getScategory(),
+//                                stockVO.getWarehouseID(), stockVO.getWarehouseName(), stockVO.getAddressCity(),
+//                                stockVO.getQuantity(), stockVO.getPname()));
     }
+//        for (StockVO stockVO : stockList) {
+//            if ( type ==0 || (stockVO.getTcategory().contains((CharSequence) identifier) && type ==1) || (stockVO.getIcategory().contains((CharSequence) identifier) && type == 2)
+//                    || (stockVO.getScategory().contains((CharSequence) identifier)) && type == 3) {
+//                System.out.printf("%-11s%-10s%-15s%-12s%-17s%-12s%-13d%-25s\n", stockVO.getTcategory(),
+//                        stockVO.getIcategory(), stockVO.getScategory(), stockVO.getWarehouseID(),
+//                        stockVO.getWarehouseName(), stockVO.getAddressCity(), stockVO.getQuantity(), stockVO.getPname());
+//            }
+//        }
+//    }
 
     private int checkInputNum() throws IOException {
         String tmp = reader.readLine();
